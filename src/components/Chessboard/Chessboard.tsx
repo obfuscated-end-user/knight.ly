@@ -87,6 +87,7 @@ export default function Chessboard() {
 	}
 
 	function dropPiece (e: React.MouseEvent) {
+		e;	// god damn i still need to do this
 		if (activePiece) activePiece = null;
 	}
 
