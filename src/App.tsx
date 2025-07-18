@@ -1,12 +1,15 @@
 import "./App.css";
-import "./components/Chessboard";
-import Chessboard from "./components/Chessboard";
+import "./components/Chessboard/Chessboard";
+import Chessboard from "./components/Chessboard/Chessboard";
+import Header from "./components/Common/Header";
+import Footer from "./components/Common/Footer";
 
 export default function App() {
 	return (
 		<div id="app">
-			knight.ly
+			<Header/>
 			<Chessboard/>
+			<Footer/>
 		</div>
-	)
+	);
 }
