@@ -5,5 +5,8 @@
 	grid-template-rows: repeat(8, 100px);
 	width: 800px;
 	height: 800px;
-	background-color: blue;
+	padding: 10px;
+	background-color: #241a0f;
+	border: 5px ridge #ccc;
+	border-radius: 10px;
 }
