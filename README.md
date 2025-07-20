@@ -1,3 +1,3 @@
 # knight.ly
 
-Chess web application written in React.
+Chess web application written in TypeScript and React.

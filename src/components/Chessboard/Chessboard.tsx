@@ -1,7 +1,8 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Tile from "../Tile/Tile";
 import "./Chessboard.css";
 
+// use this for rendering the rank and file thing later
 const horizontalAxis = "abcdefgh".split("");
 const verticalAxis = "12345678".split("");
 
@@ -9,65 +10,85 @@ interface Piece {
 	image:	string
 	x:		number
 	y:		number
-}
+};
 
-const pieces: Piece[] = [];
+const initialBoardState: Piece[] = [];
 
 for (let p = 0; p < 2; p++) {
 	// https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
 	// https://commons.wikimedia.org/wiki/Category:PNG_chess_pieces/Standard_transparent
-	const type = p === 0 ? "d" : "l";	// dark or light
-	const y = p === 0 ? 7 : 0;
+	const type: string = p === 0 ? "d" : "l";	// dark or light
+	const y: number = p === 0 ? 7 : 0;
 
 	// rooks
-	pieces.push({image: `/pieces-svg/Chess_r${type}t45.svg`, x: 0, y});
-	pieces.push({image: `/pieces-svg/Chess_r${type}t45.svg`, x: 7, y});
+	initialBoardState.push({image: `/pieces-svg/Chess_r${type}t45.svg`, x: 0, y});
+	initialBoardState.push({image: `/pieces-svg/Chess_r${type}t45.svg`, x: 7, y});
 	// knights
-	pieces.push({image: `/pieces-svg/Chess_n${type}t45.svg`, x: 1, y});
-	pieces.push({image: `/pieces-svg/Chess_n${type}t45.svg`, x: 6, y});
+	initialBoardState.push({image: `/pieces-svg/Chess_n${type}t45.svg`, x: 1, y});
+	initialBoardState.push({image: `/pieces-svg/Chess_n${type}t45.svg`, x: 6, y});
 	// bishops
-	pieces.push({image: `/pieces-svg/Chess_b${type}t45.svg`, x: 2, y});
-	pieces.push({image: `/pieces-svg/Chess_b${type}t45.svg`, x: 5, y});
+	initialBoardState.push({image: `/pieces-svg/Chess_b${type}t45.svg`, x: 2, y});
+	initialBoardState.push({image: `/pieces-svg/Chess_b${type}t45.svg`, x: 5, y});
 	// king and queen
-	pieces.push({image: `/pieces-svg/Chess_k${type}t45.svg`, x: 4, y});
-	pieces.push({image: `/pieces-svg/Chess_q${type}t45.svg`, x: 3, y});
+	initialBoardState.push({image: `/pieces-svg/Chess_k${type}t45.svg`, x: 4, y});
+	initialBoardState.push({image: `/pieces-svg/Chess_q${type}t45.svg`, x: 3, y});
 }
 
 // pawns
 for (let i = 0; i < 8; i++) {
-	pieces.push({image: `/pieces-svg/Chess_pdt45.svg`, x: i, y: 6});	// black
-	pieces.push({image: "/pieces-svg/Chess_plt45.svg", x: i, y: 1});	// white
+	// black and white (in that order)
+	initialBoardState.push({image: `/pieces-svg/Chess_pdt45.svg`, x: i, y: 6});
+	initialBoardState.push({image: "/pieces-svg/Chess_plt45.svg", x: i, y: 1});
 }
 
 export default function Chessboard() {
+	// prevents a weird double clicking bug (uncomment the activePiece lines to
+	// see it in action)
+	const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
+	const [gridX, setGridX] = useState(0);
+	const [gridY, setGridY] = useState(0);
+	const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
 	const chessboardRef = useRef<HTMLDivElement>(null);
 
-	let activePiece: HTMLElement | null = null;
+	// let activePiece: HTMLElement | null = null;
 
 	function grabPiece(e: React.MouseEvent) {
-		const element  = e.target as HTMLElement;
-		if (element.classList.contains("chess-piece")) {
+		const element: HTMLElement  = e.target as HTMLElement;
+		// remove the type here if something bad happens
+		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
+		if (element.classList.contains("chess-piece") && chessboard) {
+			setGridX(
+				Math.floor((e.clientX - chessboard.offsetLeft) / 100)
+			);
+			setGridY(
+				Math.abs(
+					Math.ceil((e.clientY - chessboard.offsetTop - 800) / 100)
+				)
+			);
 			// subtract 50 so you grab the center of the piece
 			// remove that and it looks like you're grabbing air
-			const x = e.clientX - 50;
-			const y = e.clientY - 50;
+			const x: number = e.clientX - 50;
+			const y: number = e.clientY - 50;	// changing this to - 50 warps the piece upwards on move
 			element.style.position = "absolute";
 			element.style.left = `${x}px`;
 			element.style.top = `${y}px`;
 
-			activePiece = element;
+			setActivePiece(element);
+			// activePiece = element;
 		}
 	}
 
 	function movePiece(e: React.MouseEvent) {
-		const chessboard = chessboardRef.current;
+		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
 		if (activePiece && chessboard) {
-			const minX = chessboard.offsetLeft - 25;
-			const minY = chessboard.offsetTop - 25;
-			const maxX = chessboard.offsetLeft + chessboard.clientWidth - 75;
-			const maxY = chessboard.offsetTop + chessboard.clientHeight - 75;
-			const x = e.clientX - 50;
-			const y = e.clientY - 50;
+			const minX: number = chessboard.offsetLeft - 25;
+			const minY: number = chessboard.offsetTop - 25;
+			const maxX: number
+				= chessboard.offsetLeft + chessboard.clientWidth - 75;
+			const maxY: number
+				= chessboard.offsetTop + chessboard.clientHeight - 75;
+			const x: number = e.clientX - 50;
+			const y: number = e.clientY - 50;	// changing this to - 50 warps the piece upwards on move
 			activePiece.style.position = "absolute";
 
 			if (x < minX)		// too far left
@@ -87,16 +108,37 @@ export default function Chessboard() {
 	}
 
 	function dropPiece (e: React.MouseEvent) {
-		e;	// god damn i still need to do this
-		if (activePiece) activePiece = null;
+		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
+		if (activePiece && chessboard) {
+			const x: number = Math.floor(
+				(e.clientX - chessboard.offsetLeft) / 100
+			);
+			const y: number = Math.abs(
+				Math.ceil((e.clientY - chessboard.offsetTop - 800) / 100)
+			);
+			setPieces((value) => {
+				const pieces: Piece[] = value.map(p => {
+					if (p.x === gridX && p.y === gridY) {
+						p.x = x;
+						p.y = y;	// temporary " - 1" because you added 50 at e.clientY in grabPiece() and movePiece
+					}
+					return p;
+				});
+				return pieces;
+			});
+
+			setActivePiece(null);
+			// activePiece = null;
+		}
 	}
 
 	let board = [];
 
+	// render the board
 	// don't use ++i or --j
 	for (let j = verticalAxis.length - 1; j >= 0; j--) {
 		for (let i = 0; i < horizontalAxis.length; i++) {
-			const number  = j + i + 2;
+			const number: number = j + i + 2;
 			let image = undefined;
 
 			pieces.forEach(p => {
