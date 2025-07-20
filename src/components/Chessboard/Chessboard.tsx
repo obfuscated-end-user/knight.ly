@@ -56,19 +56,23 @@ export default function Chessboard() {
 		const element: HTMLElement  = e.target as HTMLElement;
 		// remove the type here if something bad happens
 		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
+		console.log(element);
 		if (element.classList.contains("chess-piece") && chessboard) {
-			setGridX(
-				Math.floor((e.clientX - chessboard.offsetLeft) / 100)
+			// you need the window.scrollX/Y for this to function properly
+			const gridX: number = Math.floor(
+				(e.clientX + window.scrollX - chessboard.offsetLeft) / 100
 			);
-			setGridY(
-				Math.abs(
-					Math.ceil((e.clientY - chessboard.offsetTop - 800) / 100)
+			const gridY: number = Math.abs(
+				Math.ceil(
+					(e.clientY + window.scrollY - chessboard.offsetTop - 800) / 100
 				)
 			);
+			setGridX(gridX);
+			setGridY(gridY);
 			// subtract 50 so you grab the center of the piece
 			// remove that and it looks like you're grabbing air
-			const x: number = e.clientX - 50;
-			const y: number = e.clientY - 50;	// changing this to - 50 warps the piece upwards on move
+			const x: number = e.clientX + window.scrollX - 50;
+			const y: number = e.clientY + window.scrollY - 50;
 			element.style.position = "absolute";
 			element.style.left = `${x}px`;
 			element.style.top = `${y}px`;
@@ -87,8 +91,8 @@ export default function Chessboard() {
 				= chessboard.offsetLeft + chessboard.clientWidth - 75;
 			const maxY: number
 				= chessboard.offsetTop + chessboard.clientHeight - 75;
-			const x: number = e.clientX - 50;
-			const y: number = e.clientY - 50;	// changing this to - 50 warps the piece upwards on move
+			const x: number = e.clientX + window.scrollX - 50;
+			const y: number = e.clientY + window.scrollY - 50;
 			activePiece.style.position = "absolute";
 
 			if (x < minX)		// too far left
@@ -111,10 +115,10 @@ export default function Chessboard() {
 		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
 		if (activePiece && chessboard) {
 			const x: number = Math.floor(
-				(e.clientX - chessboard.offsetLeft) / 100
+				(e.clientX + window.scrollX - chessboard.offsetLeft) / 100
 			);
 			const y: number = Math.abs(
-				Math.ceil((e.clientY - chessboard.offsetTop - 800) / 100)
+				Math.ceil((e.clientY + window.scrollY - chessboard.offsetTop - 800) / 100)
 			);
 			setPieces((value) => {
 				const pieces: Piece[] = value.map(p => {
