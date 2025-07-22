@@ -8,7 +8,7 @@ interface Props {
 
 export default function Tile({number, image, coords}: Props) {
 	const tileColor: string = number % 2 ? "tile white-tile" : "tile black-tile";
-	coords = undefined;	// comment this line if you want to use this
+	coords = "";	// comment this line if you want to use this
 	return (
 		<div className={tileColor}>
 			{/* {coords} */}
