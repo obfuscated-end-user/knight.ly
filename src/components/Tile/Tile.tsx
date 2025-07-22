@@ -11,7 +11,7 @@ export default function Tile({number, image, coords}: Props) {
 	coords = "";	// comment this line if you want to use this
 	return (
 		<div className={tileColor}>
-			{/* {coords} */}
+			{coords}
 			{/* if image is not null AND tile contains a piece */}
 			{image && <div style={{backgroundImage: `url(${image})`}} className="chess-piece"></div>}
 		</div>
