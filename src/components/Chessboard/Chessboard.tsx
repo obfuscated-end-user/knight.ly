@@ -8,10 +8,10 @@ const horizontalAxis = "abcdefgh".split("");
 const verticalAxis = "12345678".split("");
 
 export interface Piece {
-	image:	string
-	x:		number
-	y:		number
-	type:	PieceType
+	image:	string,
+	x:		number,
+	y:		number,
+	type:	PieceType,
 	team:	TeamType
 };
 
@@ -32,49 +32,105 @@ export enum PieceType {
 
 const initialBoardState: Piece[] = [];
 
+// render the pieces on the board
+// p < 2 because there are only 2 parties involved... can you guess who?
 for (let p = 0; p < 2; p++) {
 	// https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
-	// https://commons.wikimedia.org/wiki/Category:PNG_chess_pieces/Standard_transparent
-	const teamType = p === 0 ? TeamType.OPPONENT : TeamType.OUR;
-	const type: string = teamType === TeamType.OPPONENT ? "d" : "l";	// dark or light
-	const y: number = teamType === TeamType.OPPONENT ? 7 : 0;
 
-	// rooks
-	initialBoardState.push({image: `/pieces-svg/Chess_r${type}t45.svg`, x: 0, y, type: PieceType.ROOK, team: teamType});
-	initialBoardState.push({image: `/pieces-svg/Chess_r${type}t45.svg`, x: 7, y, type: PieceType.ROOK, team: teamType});
-	// knights
-	initialBoardState.push({image: `/pieces-svg/Chess_n${type}t45.svg`, x: 1, y, type: PieceType.KNIGHT, team: teamType});
-	initialBoardState.push({image: `/pieces-svg/Chess_n${type}t45.svg`, x: 6, y, type: PieceType.KNIGHT, team: teamType});
-	// bishops
-	initialBoardState.push({image: `/pieces-svg/Chess_b${type}t45.svg`, x: 2, y, type: PieceType.BISHOP, team: teamType});
-	initialBoardState.push({image: `/pieces-svg/Chess_b${type}t45.svg`, x: 5, y, type: PieceType.BISHOP, team: teamType});
-	// king and queen
-	initialBoardState.push({image: `/pieces-svg/Chess_k${type}t45.svg`, x: 4, y, type: PieceType.KING, team: teamType});
-	initialBoardState.push({image: `/pieces-svg/Chess_q${type}t45.svg`, x: 3, y, type: PieceType.QUEEN, team: teamType});
+	const teamType = (p === 0) ? TeamType.OPPONENT : TeamType.OUR;
+	// dark or light
+	const type: string = (teamType === TeamType.OPPONENT) ? "d" : "l";
+	// y = 7, black (top) else y = 0, white (bottom)
+	const y: number = (teamType === TeamType.OPPONENT) ? 7 : 0;
+
+	initialBoardState.push({	// rooks
+		image:	`/pieces-svg/Chess_r${type}t45.svg`,
+		x:		0,
+		y,		// you can do this instead of "y: y,"
+		type:	PieceType.ROOK,
+		team:	teamType
+	});
+	initialBoardState.push({
+		image:	`/pieces-svg/Chess_r${type}t45.svg`,
+		x:		7,
+		y,
+		type:	PieceType.ROOK,
+		team:	teamType
+	});
+	initialBoardState.push({	// knights
+		image:	`/pieces-svg/Chess_n${type}t45.svg`,
+		x:		1,
+		y,
+		type:	PieceType.KNIGHT,
+		team:	teamType
+	});
+	initialBoardState.push({
+		image:	`/pieces-svg/Chess_n${type}t45.svg`,
+		x:		6,
+		y,
+		type:	PieceType.KNIGHT,
+		team:	teamType
+	});
+	initialBoardState.push({	// bishops
+		image:	`/pieces-svg/Chess_b${type}t45.svg`,
+		x:		2,
+		y,
+		type:	PieceType.BISHOP,
+		team:	teamType
+	});
+	initialBoardState.push({
+		image:	`/pieces-svg/Chess_b${type}t45.svg`,
+		x:		5,
+		y,
+		type:	PieceType.BISHOP,
+		team:	teamType
+	});
+	initialBoardState.push({	// king and queen
+		image:	`/pieces-svg/Chess_k${type}t45.svg`,
+		x:		4,
+		y,
+		type:	PieceType.KING,
+		team:	teamType
+	});
+	initialBoardState.push({
+		image:	`/pieces-svg/Chess_q${type}t45.svg`,
+		x:		3,
+		y,
+		type:	PieceType.QUEEN,
+		team:	teamType
+	});
 }
 
 // pawns
 for (let i = 0; i < 8; i++) {
-	// black and white (in that order)
-	initialBoardState.push({image: `/pieces-svg/Chess_pdt45.svg`, x: i, y: 6, type: PieceType.PAWN, team: TeamType.OPPONENT});
-	initialBoardState.push({image: "/pieces-svg/Chess_plt45.svg", x: i, y: 1, type: PieceType.PAWN, team: TeamType.OUR});
+	initialBoardState.push({
+		image:	"/pieces-svg/Chess_pdt45.svg",
+		x:		i,
+		y:		6,
+		type:	PieceType.PAWN,
+		team:	TeamType.OPPONENT	// BLACK
+	});
+	initialBoardState.push({
+		image:	"/pieces-svg/Chess_plt45.svg",
+		x:		i,
+		y:		1,
+		type:	PieceType.PAWN,
+		team:	TeamType.OUR		// WHITE
+	});
 }
 
 export default function Chessboard() {
-	// prevents a weird double clicking bug (uncomment the activePiece lines to
-	// see it in action)
 	const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
 	const [gridX, setGridX] = useState(0);
 	const [gridY, setGridY] = useState(0);
 	const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
 	const chessboardRef = useRef<HTMLDivElement>(null);
-	const referee: any = new Referee();
+	const referee = new Referee();
 
 	function grabPiece(e: React.MouseEvent) {
 		const element: HTMLElement  = e.target as HTMLElement;
 		// remove the type here if something bad happens
 		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
-		// console.log(element);
 		if (element.classList.contains("chess-piece") && chessboard) {
 			// you need the window.scrollX/Y for this to function properly
 			const gridX: number = Math.floor(
@@ -82,7 +138,8 @@ export default function Chessboard() {
 			);
 			const gridY: number = Math.abs(
 				Math.ceil(
-					(e.clientY + window.scrollY - chessboard.offsetTop - 800) / 100
+					(e.clientY + window.scrollY - chessboard.offsetTop - 800)
+						/ 100
 				)
 			);
 			setGridX(gridX);
@@ -125,9 +182,6 @@ export default function Chessboard() {
 				activePiece.style.top = `${maxY}px`;
 			else				// within the constraints
 				activePiece.style.top = `${y}px`;
-
-			// DEBUG
-			// console.log(`MOUSE (${x}, ${y})\nPIECE (${activePiece.style.left}, ${activePiece.style.top})`);
 		}
 	}
 
@@ -138,15 +192,26 @@ export default function Chessboard() {
 				(e.clientX + window.scrollX - chessboard.offsetLeft) / 100
 			);
 			const y: number = Math.abs(
-				Math.ceil((e.clientY + window.scrollY - chessboard.offsetTop - 800) / 100)
+				Math.ceil(
+					(e.clientY + window.scrollY - chessboard.offsetTop - 800)
+						/ 100
+				)
 			);
 
-			const currentPiece = pieces.find(p => p.x === gridX && p.y === gridY);
+			const currentPiece = pieces.find(
+				p => p.x === gridX && p.y === gridY
+			);
 			// const attackedPiece = pieces.find(p => p.x === x && p.y === y);
 
 			if (currentPiece) {
 				const validMove = referee.isValidMove(
-					gridX, gridY, x, y, currentPiece.type, currentPiece.team, pieces
+					gridX,
+					gridY,
+					x,
+					y,
+					currentPiece.type,
+					currentPiece.team,
+					pieces
 				);
 
 				// updates the piece position and if a piece is attacked,
@@ -154,16 +219,21 @@ export default function Chessboard() {
 				if (validMove) {
 					// reduce()
 					// results - array of results
-					// piece - the current piece we are handlingyy
+					// piece - the current piece we are handling
 					const updatedPieces = pieces.reduce((results, piece) => {
-						// results.push(piece);
-						if (piece.x === currentPiece.x && piece.y === currentPiece.y) {
-							piece.x = x;
-							piece.y = y;
+						if (
+							piece.x === currentPiece.x &&
+							piece.y === currentPiece.y
+						) {
+							// piece.x = x;
+							// piece.y = y;
+							// results.push(piece);
+
+							// create a new object instead with updated
+							// x and y values
+							results.push({ ...piece, x, y });	// WHAT THE HELL
+						} else if (!(piece.x === x && piece.y === y))
 							results.push(piece);
-						} else if (!(piece.x === x && piece.y === y)) {
-							results.push(piece);
-						}
 						return results;
 					}, [] as Piece[]);
 					setPieces(updatedPieces);
@@ -175,7 +245,6 @@ export default function Chessboard() {
 				}
 				
 			}
-
 			setActivePiece(null);
 		}
 	}
@@ -194,12 +263,14 @@ export default function Chessboard() {
 			});
 
 			board.push(
-				<Tile key={`${j}, ${i}`} image={image} number={number}/>
+				<Tile key={`${j}, ${i}`} image={image} number={number} coords={`(${i}, ${j})`}/>
 			);
 		}
 	}
 
 	return (
+		// utilize this later for this to work on mobile devices
+		// https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Using_Touch_Events
 		<div
 			onMouseDown={e => grabPiece(e)}
 			onMouseMove={e => movePiece(e)}
