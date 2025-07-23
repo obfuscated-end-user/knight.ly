@@ -8,11 +8,12 @@ const horizontalAxis = "abcdefgh".split("");
 const verticalAxis = "12345678".split("");
 
 export interface Piece {
-	image:	string,
-	x:		number,
-	y:		number,
-	type:	PieceType,
-	team:	TeamType
+	image:		string,
+	x:			number,
+	y:			number,
+	type:		PieceType,
+	team:		TeamType,
+	enPassant?:	boolean,
 };
 
 export enum TeamType {
@@ -214,26 +215,70 @@ export default function Chessboard() {
 					pieces
 				);
 
+				const isEnPassantMove = referee.isEnPassant(
+					gridX,
+					gridY,
+					x,
+					y,
+					currentPiece.type,
+					currentPiece.team,
+					pieces,
+				);
+
+				const pawnDirection: number = (currentPiece.team === TeamType.OUR) ? 1 : -1;
+				if (isEnPassantMove) {
+					// https://en.wikipedia.org/wiki/En_passant
+					const updatedPieces = pieces.reduce((results, piece) => {
+						if (
+							piece.x === gridX &&
+							piece.y === gridY
+						) {
+							piece.x = x;
+							piece.y = y;
+							piece.enPassant = false;
+							results.push(piece);
+						} else if (!((piece.x === x) && (piece.y === y - pawnDirection))) {
+							if (piece.type === PieceType.PAWN) {
+								piece.enPassant = false;
+							}
+							results.push(piece);
+						}
+						return results;
+					}, [] as Piece[]);
+
+					setPieces(updatedPieces);
+
 				// updates the piece position and if a piece is attacked,
 				// removes it
-				if (validMove) {
+				} else if (validMove) {
 					// reduce()
 					// results - array of results
 					// piece - the current piece we are handling
 					const updatedPieces = pieces.reduce((results, piece) => {
 						if (
-							piece.x === currentPiece.x &&
-							piece.y === currentPiece.y
+							piece.x === gridX &&
+							piece.y === gridY
 						) {
-							// piece.x = x;
-							// piece.y = y;
-							// results.push(piece);
+							// if the attacked pice has made an en passant move in the previous turn
+							if (Math.abs(gridY - y) === 2 && piece.type === PieceType.PAWN) {
+								console.log("en passant oui oui baguette");
+								piece.enPassant = true;
+							} else {
+								piece.enPassant = false;
+							}
+							piece.x = x;
+							piece.y = y;
+							results.push(piece);
 
 							// create a new object instead with updated
 							// x and y values
-							results.push({ ...piece, x, y });	// WHAT THE HELL
-						} else if (!(piece.x === x && piece.y === y))
+							// results.push({ ...piece, x, y });	// WHAT THE HELL
+						} else if (!((piece.x === x) && (piece.y === y))) {
+							if (piece.type === PieceType.PAWN) {
+								piece.enPassant = false;
+							}
 							results.push(piece);
+						}
 						return results;
 					}, [] as Piece[]);
 					setPieces(updatedPieces);

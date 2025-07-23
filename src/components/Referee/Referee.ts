@@ -2,7 +2,7 @@ import { PieceType, TeamType, Piece } from "../Chessboard/Chessboard";
 
 export default class Referee {
 	tileIsOccupied(x: number, y: number, boardState: Piece[]): boolean {
-		return boardState.find(p => p.x === x && p.y === y) ? true : false;
+		return boardState.find((p) => p.x === x && p.y === y) ? true : false;
 	}
 
 	isTileOccupiedByOpponent(
@@ -13,8 +13,34 @@ export default class Referee {
 	): boolean {
 		// !== because we want to check if something is an opposing piece
 		return boardState.find(
-			p => p.x === x && p.y === y && p.team !== team
+			(p) => p.x === x && p.y === y && p.team !== team
 		) ? true : false;
+	}
+
+	isEnPassant (
+		px:			number,
+		py:			number,
+		x:			number,
+		y:			number,
+		type:		PieceType,
+		team:		TeamType,
+		boardState: Piece[]
+	) {
+		const pawnDirection: number = (team === TeamType.OUR) ? 1 : -1;
+
+		// if the attacking piece is a pawn
+		if (type === PieceType.PAWN) {
+			// upper left/right || bottom left/right
+			if (((x - px === -1) || (x - px === 1)) && (y - py === pawnDirection)) {
+				// if a piece is under/above the attacked tile
+				const piece = boardState.find(
+					(p) => p.x === x && p.y === y - pawnDirection && p.enPassant
+				);
+				if (piece)
+					return true;
+			}
+		}
+		return false;
 	}
 
 	isValidMove(
