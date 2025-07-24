@@ -1,8 +1,10 @@
-import { PieceType, TeamType, Piece } from "../Chessboard/Chessboard";
+import { PieceType, TeamType, Piece, Position } from "../../Constants";
 
 export default class Referee {
-	tileIsOccupied(x: number, y: number, boardState: Piece[]): boolean {
-		return boardState.find((p) => p.x === x && p.y === y) ? true : false;
+	isTileOccupied(x: number, y: number, boardState: Piece[]): boolean {
+		return boardState.find(
+			(p) => p.position.x === x && p.position.y === y
+		) ? true : false;
 	}
 
 	isTileOccupiedByOpponent(
@@ -13,28 +15,31 @@ export default class Referee {
 	): boolean {
 		// !== because we want to check if something is an opposing piece
 		return boardState.find(
-			(p) => p.x === x && p.y === y && p.team !== team
+			(p) => p.position.x === x && p.position.y === y && p.team !== team
 		) ? true : false;
 	}
 
 	isEnPassant (
-		px:			number,
-		py:			number,
-		x:			number,
-		y:			number,
-		type:		PieceType,
-		team:		TeamType,
-		boardState: Piece[]
+		initialPosition:	Position,
+		desiredPosition:	Position,
+		type:				PieceType,
+		team:				TeamType,
+		boardState: 		Piece[]
 	) {
 		const pawnDirection: number = (team === TeamType.OUR) ? 1 : -1;
 
 		// if the attacking piece is a pawn
 		if (type === PieceType.PAWN) {
 			// upper left/right || bottom left/right
-			if (((x - px === -1) || (x - px === 1)) && (y - py === pawnDirection)) {
+			if (
+				((desiredPosition.x - initialPosition.x === -1) ||
+				(desiredPosition.x - initialPosition.x === 1)) &&
+				(desiredPosition.y - initialPosition.y === pawnDirection)
+			) {
 				// if a piece is under/above the attacked tile
 				const piece = boardState.find(
-					(p) => p.x === x && p.y === y - pawnDirection && p.enPassant
+					(p) => p.position.x === desiredPosition.x && p.position.y
+						=== desiredPosition.y - pawnDirection && p.enPassant
 				);
 				if (piece)
 					return true;
@@ -44,19 +49,14 @@ export default class Referee {
 	}
 
 	isValidMove(
-		px:			number,		// previous x location
-		py:			number,		// previous y location
-		x:			number,		// current x location
-		y:			number,		// current y location
-		type:		PieceType,	// what piece this is (pawn, rook, etc.)
-		team:		TeamType,	// whose side this piece is on
-		boardState:	Piece[]		// contains properties about board (see def)
+		initialPosition:	Position,	// previous (x, y) location
+		desiredPosition:	Position,	// current (x, y) location
+		type:				PieceType,	// what piece this is (pawn, rook, etc.)
+		team:				TeamType,	// whose side this piece is on
+		boardState:			Piece[]		// contains properties about board
 	): boolean {
-		// remember that coordinates start from (0, 0) at the bottom left corner
-		// of the board
-		// console.log(`(px, py):\t(${px}, ${py})\n(x, y):\t\t(${x}, ${y})\ntype:\t\t${type}\nteam:\t\t${team}\nboardState:\t${boardState}\ntileocc:\t${boardState.find(p => p.x === x && p.y === y)}\noccopp:\t${boardState.find(p => p.x === x && p.y === y && p.team == team)}`);
-		// console.log(boardState);
-
+		// remember that coordinates start from (0, 0) at the bottom left
+		// corner of the board
 		if (type === PieceType.PAWN) {
 			// intitial pawn positions, y = 1 is white, y = 6 is black
 			const specialRow: number = (team === TeamType.OUR) ? 1 : 6;
@@ -68,36 +68,57 @@ export default class Referee {
 			// 1 or 6 AND if y diff between current and previous position is 2
 			// (you have the option to move the pawn two tiles ahead as your
 			// first move)
-			if ((px === x) && (py === specialRow) && (y - py === 2 * pawnDirection)) {
+			if (
+				(initialPosition.x === desiredPosition.x) &&
+				(initialPosition.y === specialRow) &&
+				(desiredPosition.y - initialPosition.y === 2 * pawnDirection)
+			) {
 				// if the tiles are not occupied, then this is a valid move
-				if (
-					!this.tileIsOccupied(x, y, boardState) &&
-					!this.tileIsOccupied(x, y - pawnDirection, boardState)
+				if (!this.isTileOccupied(
+						desiredPosition.x,
+						desiredPosition.y,
+						boardState
+					) && !this.isTileOccupied(
+						desiredPosition.x,
+						desiredPosition.y - pawnDirection,
+						boardState
+					)
 				)
 					return true;
 			// after moving (whether capture or just because)
-			// else if x value is the same AND if y diff between current and
-			// previous position is 1
-			} else if ((px === x) && (y - py === pawnDirection)) {
-				if (!this.tileIsOccupied(x, y, boardState))
+			// else if x value is the same AND if y diff between current AND
+			// previous position is 1 or -1
+			} else if (
+				(initialPosition.x === desiredPosition.x) &&
+				(desiredPosition.y - initialPosition.y === pawnDirection)
+			) {
+				if (!this.isTileOccupied(
+					desiredPosition.x, desiredPosition.y, boardState)
+				)
 					return true;
-			// attack logic (you know, moving one tile diagonally, upwards)
-			} else if ((x - px === -1) && (y - py === pawnDirection)) {
-				// x decreases as you move left and the contrary shows when you move right
+			// attack logic (you know, moving one tile forward, diagonally)
+			} else if (
+				(desiredPosition.x - initialPosition.x === -1) &&
+				(desiredPosition.y - initialPosition.y === pawnDirection)
+			) {
+				// x decreases as you move left and the contrary
+				// shows when you move right
 				// attack in the upper or bottom left corner
-				if (this.isTileOccupiedByOpponent(x, y, boardState, team)) {
-					// console.log("upper/bottom left\n(x, y)", x, y, "\n(px, py)", px, py);
+				if (this.isTileOccupiedByOpponent(
+					desiredPosition.x, desiredPosition.y, boardState, team)
+				)
 					return true;
-				}
-			} else if ((x - px === 1) && (y - py === pawnDirection)) {
+			} else if (
+				(desiredPosition.x - initialPosition.x === 1) &&
+				(desiredPosition.y - initialPosition.y === pawnDirection)
+			) {
 				// attack in the upper or bottom right corner
-				if (this.isTileOccupiedByOpponent(x, y, boardState, team)) {
-					// console.log("upper/bottom right\n(x, y)", x, y, "\n(px, py)", px, py);
+				if (this.isTileOccupiedByOpponent(
+					desiredPosition.x, desiredPosition.y, boardState, team)
+				)
 					return true;
-				}
 			}
 		}
-		// invalid move
-		return false;
+		return false;	// invalid move
 	}
 }
