@@ -47,7 +47,7 @@ for (let p = 0; p < 2; p++) {
 	const y: number = (teamType === TeamType.OPPONENT) ? 7 : 0;
 
 	// https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
-	initialBoardState.push({	// rooks
+	initialBoardState.push({	// ROOKS
 		image:	`/pieces-svg/Chess_r${type}t45.svg`,
 		position: {
 			x:	0,
@@ -65,7 +65,7 @@ for (let p = 0; p < 2; p++) {
 		type:	PieceType.ROOK,
 		team:	teamType
 	});
-	initialBoardState.push({	// knights
+	initialBoardState.push({	// KNIGHTS
 		image:	`/pieces-svg/Chess_n${type}t45.svg`,
 		position: {
 			x:	1,
@@ -83,7 +83,7 @@ for (let p = 0; p < 2; p++) {
 		type:	PieceType.KNIGHT,
 		team:	teamType
 	});
-	initialBoardState.push({	// bishops
+	initialBoardState.push({	// BISHOPS
 		image:	`/pieces-svg/Chess_b${type}t45.svg`,
 		position: {
 			x:	2,
@@ -101,7 +101,7 @@ for (let p = 0; p < 2; p++) {
 		type:	PieceType.BISHOP,
 		team:	teamType
 	});
-	initialBoardState.push({	// king and queen
+	initialBoardState.push({	// KING AND QUEEN
 		image:	`/pieces-svg/Chess_k${type}t45.svg`,
 		position: {
 			x:	4,

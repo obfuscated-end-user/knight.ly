@@ -57,8 +57,8 @@ export default function Chessboard() {
 				= chessboard.offsetLeft + chessboard.clientWidth - 75;
 			const maxY: number
 				= chessboard.offsetTop + chessboard.clientHeight - 75;
-			const x: number = e.clientX + window.scrollX - 50;
-			const y: number = e.clientY + window.scrollY - 50;
+			const x: number = e.clientX + window.scrollX - (GRID_SIZE / 2);
+			const y: number = e.clientY + window.scrollY - (GRID_SIZE / 2);
 			activePiece.style.position = "absolute";
 
 			if (x < minX)		// too far left
@@ -111,7 +111,7 @@ export default function Chessboard() {
 					pieces,
 				);
 
-				const pawnDirection: number =
+				const pawnDirection: number =			// w	b
 					(currentPiece.team === TeamType.OUR) ? 1 : -1;
 				if (isEnPassantMove) {
 					// https://en.wikipedia.org/wiki/En_passant

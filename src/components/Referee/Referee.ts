@@ -1,21 +1,36 @@
-import { PieceType, TeamType, Piece, Position } from "../../Constants";
+import {
+	PieceType,
+	TeamType,
+	Piece,
+	Position,
+	samePosition
+} from "../../Constants";
 
 export default class Referee {
-	isTileOccupied(x: number, y: number, boardState: Piece[]): boolean {
+	isTileEmptyOrOccupiedByOpponent(
+		position:	Position,
+		boardState:	Piece[],
+		team:		TeamType
+	) {
+		return (
+			!this.isTileOccupied(position, boardState) ||
+			this.isTileOccupiedByOpponent(position, boardState, team)
+		);
+	}
+
+	isTileOccupied(position: Position, boardState: Piece[]): boolean {
 		return boardState.find(
-			(p) => p.position.x === x && p.position.y === y
+			(p) => samePosition(p.position, position)
 		) ? true : false;
 	}
 
 	isTileOccupiedByOpponent(
-		x:			number,
-		y:			number,
+		position:	Position,
 		boardState: Piece[],
 		team:		TeamType
 	): boolean {
-		// !== because we want to check if something is an opposing piece
 		return boardState.find(
-			(p) => p.position.x === x && p.position.y === y && p.team !== team
+			(p) => samePosition(p.position, position) && p.team !== team
 		) ? true : false;
 	}
 
@@ -28,7 +43,6 @@ export default class Referee {
 	) {
 		const pawnDirection: number = (team === TeamType.OUR) ? 1 : -1;
 
-		// if the attacking piece is a pawn
 		if (type === PieceType.PAWN) {
 			// upper left/right || bottom left/right
 			if (
@@ -63,7 +77,7 @@ export default class Referee {
 			// positive to go upwards (white), otherwise go downwards (black)
 			const pawnDirection: number = (team === TeamType.OUR) ? 1 : -1;
 
-			// movement logic
+			// MOVEMENT LOGIC
 			// if pawn is on the first row (hasn't moved yet) AND y is on either
 			// 1 or 6 AND if y diff between current and previous position is 2
 			// (you have the option to move the pawn two tiles ahead as your
@@ -74,13 +88,13 @@ export default class Referee {
 				(desiredPosition.y - initialPosition.y === 2 * pawnDirection)
 			) {
 				// if the tiles are not occupied, then this is a valid move
-				if (!this.isTileOccupied(
-						desiredPosition.x,
-						desiredPosition.y,
-						boardState
-					) && !this.isTileOccupied(
-						desiredPosition.x,
-						desiredPosition.y - pawnDirection,
+				if (
+					!this.isTileOccupied(desiredPosition, boardState)
+					&& !this.isTileOccupied(
+						{
+							x: desiredPosition.x,
+							y: desiredPosition.y - pawnDirection
+						},
 						boardState
 					)
 				)
@@ -92,11 +106,9 @@ export default class Referee {
 				(initialPosition.x === desiredPosition.x) &&
 				(desiredPosition.y - initialPosition.y === pawnDirection)
 			) {
-				if (!this.isTileOccupied(
-					desiredPosition.x, desiredPosition.y, boardState)
-				)
+				if (!this.isTileOccupied(desiredPosition, boardState))
 					return true;
-			// attack logic (you know, moving one tile forward, diagonally)
+			// ATTACK LOGIC (you know, moving one tile forward, diagonally)
 			} else if (
 				(desiredPosition.x - initialPosition.x === -1) &&
 				(desiredPosition.y - initialPosition.y === pawnDirection)
@@ -105,7 +117,7 @@ export default class Referee {
 				// shows when you move right
 				// attack in the upper or bottom left corner
 				if (this.isTileOccupiedByOpponent(
-					desiredPosition.x, desiredPosition.y, boardState, team)
+					desiredPosition, boardState, team)
 				)
 					return true;
 			} else if (
@@ -114,9 +126,45 @@ export default class Referee {
 			) {
 				// attack in the upper or bottom right corner
 				if (this.isTileOccupiedByOpponent(
-					desiredPosition.x, desiredPosition.y, boardState, team)
+					desiredPosition, boardState, team)
 				)
 					return true;
+			}
+		} else if (type === PieceType.KNIGHT) {
+			// remember that you don't have to check if there's anything
+			// blocking a knight's way because it can jump between pieces
+			// only do that for pieces of the same team
+			// MOVEMENT LOGIC
+			for (let i = -1; i < 2; i += 2) {
+				for (let j = -1; j < 2; j += 2) {
+					// top/bottom side movement
+					// move 2 tiles forwards/backwards
+					if (desiredPosition.y - initialPosition.y === 2 * i) {
+						// move 1 tile left/right
+						if (desiredPosition.x - initialPosition.x === j) {
+							if (this.isTileEmptyOrOccupiedByOpponent(
+								desiredPosition,
+								boardState,
+								team
+							))
+								return true;
+						}
+					}
+
+					// left/right side movement
+					// move 2 tiles left/right
+					if (desiredPosition.x - initialPosition.x === 2 * i) {
+						// move 1 tile forward/backward
+						if (desiredPosition.y - initialPosition.y === j) {
+							if (this.isTileEmptyOrOccupiedByOpponent(
+								desiredPosition,
+								boardState,
+								team
+							))
+								return true;
+						}
+					}
+				}
 			}
 		}
 		return false;	// invalid move
