@@ -134,7 +134,7 @@ export default class Referee {
 			// remember that you don't have to check if there's anything
 			// blocking a knight's way because it can jump between pieces
 			// only do that for pieces of the same team
-			// MOVEMENT LOGIC
+			// MOVEMENT AND ATTACK LOGIC
 			for (let i = -1; i < 2; i += 2) {
 				for (let j = -1; j < 2; j += 2) {
 					// top/bottom side movement
@@ -164,6 +164,93 @@ export default class Referee {
 								return true;
 						}
 					}
+				}
+			}
+		} else if (type === PieceType.BISHOP) {
+			// because 7 tiles is the furthest a piece can go
+			for (let i = 1; i < 8; i++) {
+				// top right
+				if (
+					(desiredPosition.x - initialPosition.x === i) &&
+					(desiredPosition.y - initialPosition.y === i)
+				) {
+					let passedPosition: Position = {
+						x: initialPosition.x + i,
+						y: initialPosition.y + i
+					};
+					if (this.isTileOccupied(passedPosition, boardState)) {
+						console.log("illegal");
+						break;
+					}
+				}
+				if (
+					(desiredPosition.x - initialPosition.x === i) &&
+					(desiredPosition.y - initialPosition.y === i)
+				) {
+					return true;
+				}
+
+				// bottom right
+				if (
+					(desiredPosition.x > initialPosition.x) &&
+					(desiredPosition.y < initialPosition.y)
+				) {
+					let passedPosition: Position = {
+						x: initialPosition.x + i,
+						y: initialPosition.y - i
+					};
+					if (this.isTileOccupied(passedPosition, boardState)) {
+						console.log("illegal");
+						break;
+					}
+				}
+				if (
+					(desiredPosition.x - initialPosition.x === i) &&
+					(desiredPosition.y - initialPosition.y === -i)
+				) {
+					return true;
+				}
+
+				// bottom left
+				if (
+					(desiredPosition.x < initialPosition.x) &&
+					(desiredPosition.y < initialPosition.y)
+				) {
+					let passedPosition: Position = {
+						x: initialPosition.x - i,
+						y: initialPosition.y - i
+					};
+					if (this.isTileOccupied(passedPosition, boardState)) {
+						console.log("illegal");
+						break;
+					}
+				}
+				if (
+					(desiredPosition.x - initialPosition.x === -i) &&
+					(desiredPosition.y - initialPosition.y === -i)
+				) {
+					return true;
+				}
+
+				// top left
+				if (
+					(desiredPosition.x < initialPosition.x) &&
+					(desiredPosition.y > initialPosition.y)
+				) {
+					let passedPosition: Position = {
+						x: initialPosition.x - i,
+						y: initialPosition.y + i
+					};
+					if (this.isTileOccupied(passedPosition, boardState)) {
+						console.log("illegal");
+						break;
+					}
+				}
+				if (
+					(desiredPosition.x - initialPosition.x === -i) &&
+					(desiredPosition.y - initialPosition.y === i)
+				) {
+					return true;
 				}
 			}
 		}
