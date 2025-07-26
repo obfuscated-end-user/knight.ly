@@ -7,7 +7,7 @@
 	height: 800px;
 	padding: 10px;
 	background-color: #5c2f22;
-	border: 5px ridge #ccc;
+	border: 5px outset #ccc;
 	border-radius: 10px;
 	box-shadow: 5px 10px 8px #000;
 }
