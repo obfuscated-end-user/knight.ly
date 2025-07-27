@@ -16,7 +16,7 @@ import {
 
 export default function Chessboard() {
 	const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
-	const [grabPosition, setGrabPostion] = useState<Position>({ x: -1, y: -1 });
+	const [grabPosition, setGrabPosition] = useState<Position>({ x: -1, y: -1 });
 	const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
 	const chessboardRef = useRef<HTMLDivElement>(null);
 	const referee = new Referee();
@@ -25,17 +25,19 @@ export default function Chessboard() {
 		const element: HTMLElement = e.target as HTMLElement;
 		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
 		if (element.classList.contains("chess-piece") && chessboard) {
+			// replace this with hardcoded value 800 if it fails
+			const chessboardHeight = chessboard.clientHeight;
 			// you need the window.scrollX/Y for this to function properly
 			const grabX: number = Math.floor(
 				(e.clientX + window.scrollX - chessboard.offsetLeft) / GRID_SIZE
 			);
 			const grabY: number = Math.abs(
 				Math.ceil(
-					(e.clientY + window.scrollY - chessboard.offsetTop - 800)
-						/ GRID_SIZE
+					(e.clientY + window.scrollY - chessboard.offsetTop -
+					chessboardHeight) / GRID_SIZE
 				)
 			);
-			setGrabPostion({ x: grabX, y: grabY });
+			setGrabPosition({ x: grabX, y: grabY });
 			// subtract (GRID_SIZE / 2) so you grab the center of the piece
 			// remove that and it looks like you're grabbing air
 			const x: number = e.clientX + window.scrollX - (GRID_SIZE / 2);
@@ -80,13 +82,14 @@ export default function Chessboard() {
 	function dropPiece (e: React.MouseEvent) {
 		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
 		if (activePiece && chessboard) {
+			const chessboardHeight = chessboard.clientHeight;
 			const x: number = Math.floor(
 				(e.clientX + window.scrollX - chessboard.offsetLeft) / GRID_SIZE
 			);
 			const y: number = Math.abs(
 				Math.ceil(
-					(e.clientY + window.scrollY - chessboard.offsetTop - 800)
-						/ GRID_SIZE
+					(e.clientY + window.scrollY - chessboard.offsetTop
+					- chessboardHeight) / GRID_SIZE
 				)
 			);
 
@@ -159,7 +162,6 @@ export default function Chessboard() {
 					activePiece.style.removeProperty("top");
 					activePiece.style.removeProperty("left");
 				}
-				
 			}
 			setActivePiece(null);
 		}
