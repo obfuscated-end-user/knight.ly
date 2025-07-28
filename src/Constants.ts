@@ -28,11 +28,12 @@ export enum TeamType {
 };
 
 export interface Piece {
-	image:		string,
-	position:	Position,
-	type:		PieceType,
-	team:		TeamType,
-	enPassant?:	boolean,
+	image:			string,
+	position:		Position,
+	type:			PieceType,
+	team:			TeamType,
+	enPassant?:		boolean,
+	possibleMoves?:	Position[]
 };
 
 export const initialBoardState: Piece[] = [];
@@ -46,9 +47,9 @@ for (let p = 0; p < 2; p++) {
 	// y = 7, black (top) else y = 0, white (bottom)
 	const y: number = (teamType === TeamType.OPPONENT) ? 7 : 0;
 
-	// https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
+	// https://commons.wikimedia.org/wiki/Category:SVG_pieces
 	initialBoardState.push({	// ROOKS
-		image:	`/pieces-svg/Chess_r${type}t45.svg`,
+		image:	`/pieces-svg/r${type}.svg`,
 		position: {
 			x:	0,
 			y	// you can do this instead of "y: y,"
@@ -57,7 +58,7 @@ for (let p = 0; p < 2; p++) {
 		team:	teamType
 	});
 	initialBoardState.push({
-		image:	`/pieces-svg/Chess_r${type}t45.svg`,
+		image:	`/pieces-svg/r${type}.svg`,
 		position: {
 			x:	7,
 			y
@@ -66,7 +67,7 @@ for (let p = 0; p < 2; p++) {
 		team:	teamType
 	});
 	initialBoardState.push({	// KNIGHTS
-		image:	`/pieces-svg/Chess_n${type}t45.svg`,
+		image:	`/pieces-svg/n${type}.svg`,
 		position: {
 			x:	1,
 			y
@@ -75,7 +76,7 @@ for (let p = 0; p < 2; p++) {
 		team:	teamType
 	});
 	initialBoardState.push({
-		image:	`/pieces-svg/Chess_n${type}t45.svg`,
+		image:	`/pieces-svg/n${type}.svg`,
 		position: {
 			x:	6,
 			y
@@ -84,7 +85,7 @@ for (let p = 0; p < 2; p++) {
 		team:	teamType
 	});
 	initialBoardState.push({	// BISHOPS
-		image:	`/pieces-svg/Chess_b${type}t45.svg`,
+		image:	`/pieces-svg/b${type}.svg`,
 		position: {
 			x:	2,
 			y
@@ -93,7 +94,7 @@ for (let p = 0; p < 2; p++) {
 		team:	teamType
 	});
 	initialBoardState.push({
-		image:	`/pieces-svg/Chess_b${type}t45.svg`,
+		image:	`/pieces-svg/b${type}.svg`,
 		position: {
 			x:	5,
 			y
@@ -102,7 +103,7 @@ for (let p = 0; p < 2; p++) {
 		team:	teamType
 	});
 	initialBoardState.push({	// KING AND QUEEN
-		image:	`/pieces-svg/Chess_k${type}t45.svg`,
+		image:	`/pieces-svg/k${type}.svg`,
 		position: {
 			x:	4,
 			y
@@ -111,7 +112,7 @@ for (let p = 0; p < 2; p++) {
 		team:	teamType
 	});
 	initialBoardState.push({
-		image:	`/pieces-svg/Chess_q${type}t45.svg`,
+		image:	`/pieces-svg/q${type}.svg`,
 		position: {
 			x:	3,
 			y
@@ -124,7 +125,7 @@ for (let p = 0; p < 2; p++) {
 // pawns
 for (let i = 0; i < 8; i++) {
 	initialBoardState.push({
-		image:	"/pieces-svg/Chess_pdt45.svg",
+		image:	"/pieces-svg/pd.svg",
 		position: {
 			x:	i,
 			y:	6
@@ -133,7 +134,7 @@ for (let i = 0; i < 8; i++) {
 		team:	TeamType.OPPONENT	// BLACK
 	});
 	initialBoardState.push({
-		image:	"/pieces-svg/Chess_plt45.svg",
+		image:	"/pieces-svg/pl.svg",
 		position: {
 			x:	i,
 			y:	1

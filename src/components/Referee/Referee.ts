@@ -10,7 +10,8 @@ import {
 	bishopMove,
 	rookMove,
 	queenMove,
-	kingMove
+	kingMove,
+	getPossiblePawnMoves
 } from "./rules";
 
 export default class Referee {
@@ -100,12 +101,20 @@ export default class Referee {
 					team,
 					boardState
 				);
-				console.log("I AM KING");
 				break;
 			case PieceType.UNKNOWN:
 				console.log("UNKNOWN");
 				break;
 		}
 		return validMove;
+	}
+
+	getValidMoves(piece: Piece, boardState: Piece[]): Position[] {
+		switch(piece.type) {
+			case PieceType.PAWN:
+				return getPossiblePawnMoves(piece, boardState);
+			default:
+				return [];
+		}
 	}
 }

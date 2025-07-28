@@ -71,3 +71,39 @@ export const pawnMove = (
 	}
 	return false;
 }
+
+// used for rendering the possible move circles on the screen
+export const getPossiblePawnMoves = (
+	pawn:		Piece,
+	boardState:	Piece[]
+): Position[] =>  {
+	const possibleMoves: Position[] = [];
+	const specialRow: number = (pawn.team === TeamType.OUR) ? 1 : 6;
+	const pawnDirection: number = (pawn.team === TeamType.OUR) ? 1 : -1;
+
+	// if tile in front of pawn is not occupied
+	if (!isTileOccupied({
+			x:	pawn.position.x,
+			y:	pawn.position.y + pawnDirection
+		}, boardState)
+	) {
+		// then that is a possible move
+		possibleMoves.push({
+			x:	pawn.position.x,
+			y:	pawn.position.y + pawnDirection
+		});
+		// but if pawn hasn't moved yet and the two files ahead is not occupied
+		if ((pawn.position.y === specialRow) &&
+			!isTileOccupied({
+				x:	pawn.position.x,
+				y:	pawn.position.y + pawnDirection * 2
+			}, boardState)
+		)
+			// then that is also a possible move
+			possibleMoves.push({
+				x:	pawn.position.x,
+				y:	pawn.position.y + pawnDirection * 2
+			});
+	}
+	return possibleMoves;
+}
