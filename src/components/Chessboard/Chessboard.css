@@ -14,11 +14,14 @@
 
 #pawn-promotion-modal {
 	/* covers the whole ass screen */
-	position: absolute;
+	/* position: absolute; */
+	position: fixed;
 	top: 0px;
 	right: 0px;
 	bottom: 0px;
 	left: 0px;
+	z-index: 9999;
+	background-color: rgba(255, 255, 255, 0.7);
 }
 
 #pawn-promotion-modal.hidden {
@@ -32,10 +35,10 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-around;
-	top: calc(75% - 150px);	/* 50% in the source */
+	top: calc(50% - 150px);	/* 50% in the source */
 	left: calc(50% - 350px);
 	border-radius: 25px;
-	background-color: rgba(127, 127, 127, 0.8);
+	background-color: rgba(81, 153, 109, 0.8);
 }
 
 #pawn-promotion-modal .modal-body img {
@@ -47,13 +50,4 @@
 #pawn-promotion-modal .modal-body img:hover {
 	background-color: rgba(255, 255, 255, 0.7);
 	cursor: pointer;
-}
-
-/* possible move indicators */
-.tile-highlight::before {
-	content: " ";
-	width: 30px;
-	height: 30px;
-	border-radius: 50%;
-	background-color: rgba(0, 0, 0, 0.5);
 }

@@ -2,7 +2,7 @@ import {
 	Piece,
 	Position,
 	TeamType
-} from "../../../Constants";
+} from "../../Constants";
 import { isTileEmptyOrOccupiedByOpponent } from "./GeneralRules";
 
 export const knightMove = (
@@ -23,9 +23,7 @@ export const knightMove = (
 				// move 1 tile left/right
 				if (desiredPosition.x - initialPosition.x === j) {
 					if (isTileEmptyOrOccupiedByOpponent(
-						desiredPosition,
-						boardState,
-						team
+						desiredPosition, boardState, team
 					))
 						return true;
 				}
@@ -36,9 +34,7 @@ export const knightMove = (
 				// move 1 tile forward/backward
 				if (desiredPosition.y - initialPosition.y === j) {
 					if (isTileEmptyOrOccupiedByOpponent(
-						desiredPosition,
-						boardState,
-						team
+						desiredPosition, boardState, team
 					))
 						return true;
 				}
@@ -46,4 +42,34 @@ export const knightMove = (
 		}
 	}
 	return false;
+}
+
+export const getPossibleKnightMoves = (
+	knight:		Piece,
+	boardState:	Piece[]
+): Position[] => {
+	const possibleMoves: Position[] = [];
+
+	for (let i = -1; i < 2; i += 2) {
+		for (let j = -1; j < 2; j += 2) {
+			const verticalMove: Position = {
+				x:	knight.position.x + j,
+				y:	knight.position.y + i * 2
+			};
+			const horizontalMove: Position = {
+				x:	knight.position.x + i * 2,
+				y:	knight.position.y + j
+			};
+
+			if (isTileEmptyOrOccupiedByOpponent(
+				verticalMove, boardState, knight.team
+			))
+				possibleMoves.push(verticalMove);
+			if (isTileEmptyOrOccupiedByOpponent(
+				horizontalMove, boardState, knight.team
+			))
+				possibleMoves.push(horizontalMove);
+		}
+	}
+	return possibleMoves;
 }

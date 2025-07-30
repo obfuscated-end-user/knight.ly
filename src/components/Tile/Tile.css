@@ -33,3 +33,21 @@
 .tile img {
 	width: 80px;
 }
+
+/* possible move indicators */
+.tile-highlight:not(.chess-piece-tile)::before {
+	content: " ";
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.tile-highlight.chess-piece-tile::before {
+	position: absolute;
+	content: " ";
+	width: 90px;
+	height: 90px;
+	border: 5px dashed rgba(0, 0, 0, 0.5);
+	border-radius: 50%;
+}

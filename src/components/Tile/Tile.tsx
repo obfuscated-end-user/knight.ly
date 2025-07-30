@@ -4,7 +4,7 @@ interface Props {
 	image?:		string,
 	number:		number,
 	highlight:	boolean,
-	coords?:	string,	// for debugging
+	coords?:	string	// for debugging
 };
 
 export default function Tile({number, image, highlight, coords}: Props) {
@@ -14,7 +14,8 @@ export default function Tile({number, image, highlight, coords}: Props) {
 		"tile",
 		number % 2 === 0 && "black-tile",
 		number % 2 !== 0 && "white-tile",
-		highlight && "tile-highlight"
+		highlight && "tile-highlight",
+		image && "chess-piece-tile"
 	].filter(Boolean).join(" ");
 
 	return (
