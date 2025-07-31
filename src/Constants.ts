@@ -1,39 +1,31 @@
+import {
+	Piece,
+	Position
+} from "./models";
+
 // use this for rendering the rank and file thing later
 export const VERTICAL_AXIS = "12345678".split("");
 export const HORIZONTAL_AXIS = "abcdefgh".split("");
 export const GRID_SIZE = 100;
 
+// remove this later
 export function samePosition(p1: Position, p2: Position): boolean {
 	return (p1.x === p2.x) && (p1.y === p2.y);
 }
 
-export interface Position {
-	x:	number,
-	y:	number
-};
-
 export enum PieceType {
-	PAWN,
-	BISHOP,
-	KNIGHT,
-	ROOK,
-	QUEEN,
-	KING,
-	UNKNOWN
+	PAWN	= "p",
+	BISHOP	= "b",
+	KNIGHT	= "n",
+	ROOK	= "r",
+	QUEEN	= "q",
+	KING	= "k",
+	UNKNOWN	= "x"
 };
 
 export enum TeamType {
-	OPPONENT,
-	OUR
-};
-
-export interface Piece {
-	image:			string,
-	position:		Position,
-	type:			PieceType,
-	team:			TeamType,
-	enPassant?:		boolean,
-	possibleMoves?:	Position[]
+	OPPONENT	= "d",
+	OUR			= "l"
 };
 
 export const initialBoardState: Piece[] = [];
@@ -48,98 +40,78 @@ for (let p = 0; p < 2; p++) {
 	const y: number = (teamType === TeamType.OPPONENT) ? 7 : 0;
 
 	// https://commons.wikimedia.org/wiki/Category:SVG_pieces
-	initialBoardState.push({	// ROOKS
-		image:	`/pieces-svg/r${type}.svg`,
-		position: {
-			x:	0,
-			y	// you can do this instead of "y: y,"
-		},
-		type:	PieceType.ROOK,
-		team:	teamType
-	});
-	initialBoardState.push({
-		image:	`/pieces-svg/r${type}.svg`,
-		position: {
-			x:	7,
-			y
-		},
-		type:	PieceType.ROOK,
-		team:	teamType
-	});
-	initialBoardState.push({	// KNIGHTS
-		image:	`/pieces-svg/n${type}.svg`,
-		position: {
-			x:	1,
-			y
-		},
-		type:	PieceType.KNIGHT,
-		team:	teamType
-	});
-	initialBoardState.push({
-		image:	`/pieces-svg/n${type}.svg`,
-		position: {
-			x:	6,
-			y
-		},
-		type:	PieceType.KNIGHT,
-		team:	teamType
-	});
-	initialBoardState.push({	// BISHOPS
-		image:	`/pieces-svg/b${type}.svg`,
-		position: {
-			x:	2,
-			y
-		},
-		type:	PieceType.BISHOP,
-		team:	teamType
-	});
-	initialBoardState.push({
-		image:	`/pieces-svg/b${type}.svg`,
-		position: {
-			x:	5,
-			y
-		},
-		type:	PieceType.BISHOP,
-		team:	teamType
-	});
-	initialBoardState.push({	// KING AND QUEEN
-		image:	`/pieces-svg/k${type}.svg`,
-		position: {
-			x:	4,
-			y
-		},
-		type:	PieceType.KING,
-		team:	teamType
-	});
-	initialBoardState.push({
-		image:	`/pieces-svg/q${type}.svg`,
-		position: {
-			x:	3,
-			y
-		},
-		type:	PieceType.QUEEN,
-		team:	teamType
-	});
+	initialBoardState.push(	// ROOKS
+		new Piece(
+			new Position(0, y),
+			PieceType.ROOK,
+			teamType
+		)
+	)
+	initialBoardState.push(
+		new Piece(
+			new Position(7, y),
+			PieceType.ROOK,
+			teamType
+		)
+	);
+	initialBoardState.push(	// KNIGHTS
+		new Piece(
+			new Position(1, y),
+			PieceType.KNIGHT,
+			teamType
+		)
+	);
+	initialBoardState.push(
+		new Piece(
+			new Position(6, y),
+			PieceType.KNIGHT,
+			teamType
+		)
+	);
+	initialBoardState.push(	// BISHOPS
+		new Piece(
+			new Position(2, y),
+			PieceType.BISHOP,
+			teamType
+		)
+	);
+	initialBoardState.push(
+		new Piece(
+			new Position(5, y),
+			PieceType.BISHOP,
+			teamType
+		)
+	);
+	initialBoardState.push(	// KING AND QUEEN
+		new Piece(
+			new Position(4, y),
+			PieceType.KING,
+			teamType
+		)
+	);
+	initialBoardState.push(
+		new Piece(
+			new Position(3, y),
+			PieceType.QUEEN,
+			teamType
+		)
+	);
 }
 
-// pawns
+// PAWNS
 for (let i = 0; i < 8; i++) {
-	initialBoardState.push({
-		image:	"/pieces-svg/pd.svg",
-		position: {
-			x:	i,
-			y:	6
-		},
-		type:	PieceType.PAWN,
-		team:	TeamType.OPPONENT	// BLACK
-	});
-	initialBoardState.push({
-		image:	"/pieces-svg/pl.svg",
-		position: {
-			x:	i,
-			y:	1
-		},
-		type:	PieceType.PAWN,
-		team:	TeamType.OUR		// WHITE
-	});
+	initialBoardState.push(
+		new Piece(
+			new Position(i, 6),
+			PieceType.PAWN,
+			TeamType.OPPONENT	// BLACK
+		)
+	);
+	initialBoardState.push(
+		new Piece(
+			new Position(i, 1),
+			PieceType.PAWN,
+			TeamType.OUR		// WHITE
+		)
+	);
 }

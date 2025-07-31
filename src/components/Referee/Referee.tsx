@@ -5,9 +5,7 @@ import {
 } from "react";
 import {
 	initialBoardState,
-	Piece,
 	PieceType,
-	Position,
 	samePosition,
 	TeamType 
 } from "../../Constants";
@@ -26,15 +24,17 @@ import {
 	getPossibleQueenMoves,
 	getPossibleRookMoves
 } from "../../referee/rules";
+import {
+	Piece,
+	Position
+} from "../../models";
 
 export default function Referee() {
 	const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
 	const [promotionPawn, setPromotionPawn] = useState<Piece>();
 	const modalRef = useRef<HTMLDivElement>(null);
 
-	useEffect(() => {
-		updatePossibleMoves();
-	}, []);
+	useEffect(() => updatePossibleMoves(), []);
 
 	function updatePossibleMoves() {
 		setPieces((currentPieces) => {
@@ -68,16 +68,15 @@ export default function Referee() {
 		if (enPassantMove) {
 			// https://en.wikipedia.org/wiki/En_passant
 			const updatedPieces = pieces.reduce((results, piece) => {
-				if (samePosition(piece.position, originalPosition)) {
+				if (samePosition(piece.position,
+					new Position(originalPosition.x, originalPosition.y))
+				) {
 					piece.position.x = destination.x;
 					piece.position.y = destination.y;
 					piece.enPassant = false;
 					results.push(piece);
-				} else if (!samePosition(
-					piece.position, {
-						x:	destination.x,
-						y:	destination.y - pawnDirection
-					})
+				} else if (!samePosition(piece.position,
+					new Position(destination.x, destination.y - pawnDirection))
 				) {
 					if (piece.type === PieceType.PAWN) piece.enPassant = false;
 					results.push(piece);
@@ -90,7 +89,9 @@ export default function Referee() {
 		// removes it
 		} else if (validMove) {
 			const updatedPieces = pieces.reduce((results, piece) => {
-				if (samePosition(piece.position, originalPosition)) {
+				if (samePosition(piece.position,
+					new Position(originalPosition.x, originalPosition.y))
+				) {
 					// if the attacked piece has made an en passant move
 					// in the previous turn
 					piece.enPassant = (Math.abs(originalPosition.y -
