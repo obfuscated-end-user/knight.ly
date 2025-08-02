@@ -1,7 +1,4 @@
-import {
-	samePosition,
-	TeamType
-} from "../../Constants";
+import { TeamType } from "../../types";
 import {
 	isTileEmptyOrOccupiedByOpponent,
 	isTileOccupied,
@@ -38,13 +35,12 @@ export const kingMove = (
 			initialPosition.y + (i * multiplierY)
 		);
 
-		if (samePosition(passedPosition, desiredPosition)) {
+		if (passedPosition.samePosition(desiredPosition)) {
 			if (isTileEmptyOrOccupiedByOpponent(
 				passedPosition, boardState, team))
 				return true;
-		} else {
+		} else
 			if (isTileOccupied(passedPosition, boardState)) break;
-		}
 	}
 	return false;
 }

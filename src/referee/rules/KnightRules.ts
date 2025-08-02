@@ -1,4 +1,4 @@
-import { TeamType } from "../../Constants";
+import { TeamType } from "../../types";
 import { isTileEmptyOrOccupiedByOpponent } from "./GeneralRules";
 import {
 	Piece,
@@ -23,8 +23,8 @@ export const knightMove = (
 				// move 1 tile left/right
 				if (desiredPosition.x - initialPosition.x === j) {
 					if (isTileEmptyOrOccupiedByOpponent(
-						desiredPosition, boardState, team
-					))
+						desiredPosition, boardState, team)
+					)
 						return true;
 				}
 			}
@@ -34,8 +34,8 @@ export const knightMove = (
 				// move 1 tile forward/backward
 				if (desiredPosition.y - initialPosition.y === j) {
 					if (isTileEmptyOrOccupiedByOpponent(
-						desiredPosition, boardState, team
-					))
+						desiredPosition, boardState, team)
+					)
 						return true;
 				}
 			}

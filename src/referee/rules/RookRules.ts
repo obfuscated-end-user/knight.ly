@@ -1,8 +1,4 @@
 import {
-	samePosition,
-	TeamType
-} from "../../Constants";
-import {
 	isTileEmptyOrOccupiedByOpponent,
 	isTileOccupied,
 	isTileOccupiedByOpponent
@@ -11,6 +7,7 @@ import {
 	Piece,
 	Position
 } from "../../models";
+import { TeamType } from "../../types";
 
 export const rookMove = (
 	initialPosition:	Position,	// previous (x, y) location
@@ -27,13 +24,12 @@ export const rookMove = (
 				initialPosition.x,
 				initialPosition.y + (i * multiplier)
 			);
-			if (samePosition(passedPosition, desiredPosition)) {
+			if (passedPosition.samePosition(desiredPosition)) {
 				if (isTileEmptyOrOccupiedByOpponent(passedPosition,
 					boardState, team))
 					return true;
-			} else {
+			} else
 				if (isTileOccupied(passedPosition, boardState)) break;
-			}
 		}
 	// MOVING HORIZONTALLY
 	} else if (initialPosition.y === desiredPosition.y) {
@@ -44,13 +40,12 @@ export const rookMove = (
 				initialPosition.x + (i * multiplier),
 				initialPosition.y
 			);
-			if (samePosition(passedPosition, desiredPosition)) {
+			if (passedPosition.samePosition(desiredPosition)) {
 				if (isTileEmptyOrOccupiedByOpponent(passedPosition,
 					boardState, team))
 					return true;
-			} else {
+			} else
 				if (isTileOccupied(passedPosition, boardState)) break;
-			}
 		}
 	}
 	return false;

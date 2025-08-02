@@ -2,31 +2,13 @@ import {
 	Piece,
 	Position
 } from "./models";
+import { Pawn } from "./models/pawn";
+import { PieceType, TeamType } from "./types";
 
 // use this for rendering the rank and file thing later
 export const VERTICAL_AXIS = "12345678".split("");
 export const HORIZONTAL_AXIS = "abcdefgh".split("");
 export const GRID_SIZE = 100;
-
-// remove this later
-export function samePosition(p1: Position, p2: Position): boolean {
-	return (p1.x === p2.x) && (p1.y === p2.y);
-}
-
-export enum PieceType {
-	PAWN	= "p",
-	BISHOP	= "b",
-	KNIGHT	= "n",
-	ROOK	= "r",
-	QUEEN	= "q",
-	KING	= "k",
-	UNKNOWN	= "x"
-};
-
-export enum TeamType {
-	OPPONENT	= "d",
-	OUR			= "l"
-};
 
 export const initialBoardState: Piece[] = [];
 
@@ -101,16 +83,14 @@ for (let p = 0; p < 2; p++) {
 // PAWNS
 for (let i = 0; i < 8; i++) {
 	initialBoardState.push(
-		new Piece(
+		new Pawn(
 			new Position(i, 6),
-			PieceType.PAWN,
 			TeamType.OPPONENT	// BLACK
 		)
 	);
 	initialBoardState.push(
-		new Piece(
+		new Pawn(
 			new Position(i, 1),
-			PieceType.PAWN,
 			TeamType.OUR		// WHITE
 		)
 	);

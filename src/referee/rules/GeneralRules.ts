@@ -1,7 +1,4 @@
-import {
-	samePosition,
-	TeamType
-} from "../../Constants";
+import { TeamType } from "../../types";
 import {
 	Piece,
 	Position
@@ -11,9 +8,7 @@ export const isTileOccupied = (
 	position:	Position,
 	boardState:	Piece[]
 ): boolean => {
-	return boardState.find((p) =>
-		samePosition(p.position, position)
-	) ? true : false;
+	return boardState.find((p) => p.samePosition(position)) ? true : false;
 }
 
 export const isTileOccupiedByOpponent = (
@@ -22,7 +17,7 @@ export const isTileOccupiedByOpponent = (
 	team:		TeamType
 ): boolean => {
 	return boardState.find((p) =>
-		samePosition(p.position, position) && (p.team !== team)
+		p.samePosition(position) && (p.team !== team)
 	) ? true : false;
 }
 
