@@ -2,6 +2,7 @@ import {
 	Piece,
 	Position
 } from "./models";
+import { Board } from "./models/board";
 import { Pawn } from "./models/pawn";
 import { PieceType, TeamType } from "./types";
 
@@ -10,7 +11,8 @@ export const VERTICAL_AXIS = "12345678".split("");
 export const HORIZONTAL_AXIS = "abcdefgh".split("");
 export const GRID_SIZE = 100;
 
-export const initialBoardState: Piece[] = [];
+// this is dumb
+const initialBoardState: Piece[] = [];
 
 // render the pieces on the board
 // p < 2 because there are only 2 parties involved... can you guess who?
@@ -95,3 +97,5 @@ for (let i = 0; i < 8; i++) {
 		)
 	);
 }
+
+export const initialBoard: Board = new Board(initialBoardState, 1);
