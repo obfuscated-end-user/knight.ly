@@ -57,9 +57,9 @@ export default function Referee() {
 		const originalPosition = new Position(playedPiece.position.x, playedPiece.position.y);
 
 		// playMove() modifies the board, thus, we need to call setBoard
-		setBoard((previousBoard) => {
+		setBoard(() => {
 			// remove this later, i know it looks stupid
-			previousBoard = new Board([], 0);
+			// ypreviousBoard = new Board([], 0);
 
 			const clonedBoard = board.clone();
 			clonedBoard.totalTurns += 1;
@@ -83,8 +83,8 @@ export default function Referee() {
 			(playedPiece.isPawn)
 		) {
 			modalRef.current?.classList.remove("hidden");
-			setPromotionPawn((previousPromotionPawn) => {
-				previousPromotionPawn = undefined;
+			setPromotionPawn(() => {
+				// previousPromotionPawn = undefined;
 				const clonedPlayedPiece = playedPiece.clone();
 				clonedPlayedPiece.position = destination.clone();
 				return clonedPlayedPiece;
@@ -193,8 +193,8 @@ export default function Referee() {
 		if (promotionPawn === undefined)
 			return;
 
-		setBoard((previousBoard) => {
-			previousBoard = new Board([], 0);
+		setBoard(() => {
+			// previousBoard = new Board([], 0);
 			const clonedBoard = board.clone();
 			clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
 			if (piece.samePiecePosition(promotionPawn)) {
