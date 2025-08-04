@@ -59,7 +59,7 @@ export default function Referee() {
 		// playMove() modifies the board, thus, we need to call setBoard
 		setBoard((previousBoard) => {
 			// remove this later, i know it looks stupid
-			// previousBoard = new Board([]);
+			previousBoard = new Board([], 0);
 
 			const clonedBoard = board.clone();
 			clonedBoard.totalTurns += 1;
@@ -84,6 +84,7 @@ export default function Referee() {
 		) {
 			modalRef.current?.classList.remove("hidden");
 			setPromotionPawn((previousPromotionPawn) => {
+				previousPromotionPawn = undefined;
 				const clonedPlayedPiece = playedPiece.clone();
 				clonedPlayedPiece.position = destination.clone();
 				return clonedPlayedPiece;
@@ -193,29 +194,11 @@ export default function Referee() {
 			return;
 
 		setBoard((previousBoard) => {
+			previousBoard = new Board([], 0);
 			const clonedBoard = board.clone();
 			clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
 			if (piece.samePiecePosition(promotionPawn)) {
 				results.push(new Piece(piece.position.clone(), pieceType, piece.team));
-				/* piece.type = pieceType;
-				const teamType: string =
-					(piece.team === TeamType.OUR) ? "l" : "d";
-				let promotionPiece = "";
-				switch(pieceType) {
-					case PieceType.ROOK:
-						promotionPiece = "r";
-						break;
-					case PieceType.BISHOP:
-						promotionPiece = "b";
-						break;
-					case PieceType.KNIGHT:
-						promotionPiece = "n";
-						break;
-					case PieceType.QUEEN:
-						promotionPiece = "q";
-						break;
-				}
-				piece.image = `/pieces-svg/${promotionPiece}${teamType}.svg`; */
 			} else {
 				results.push(piece);
 			}
