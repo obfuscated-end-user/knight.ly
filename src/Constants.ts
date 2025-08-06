@@ -4,7 +4,10 @@ import {
 } from "./models";
 import { Board } from "./models/board";
 import { Pawn } from "./models/pawn";
-import { PieceType, TeamType } from "./types";
+import {
+	PieceType,
+	TeamType
+} from "./types";
 
 // use this for rendering the rank and file thing later
 export const VERTICAL_AXIS = "12345678".split("");
@@ -28,56 +31,64 @@ for (let p = 0; p < 2; p++) {
 		new Piece(
 			new Position(0, y),
 			PieceType.ROOK,
-			teamType
+			teamType,
+			false
 		)
 	)
 	initialBoardState.push(
 		new Piece(
 			new Position(7, y),
 			PieceType.ROOK,
-			teamType
+			teamType,
+			false
 		)
 	);
 	initialBoardState.push(	// KNIGHTS
 		new Piece(
 			new Position(1, y),
 			PieceType.KNIGHT,
-			teamType
+			teamType,
+			false
 		)
 	);
 	initialBoardState.push(
 		new Piece(
 			new Position(6, y),
 			PieceType.KNIGHT,
-			teamType
+			teamType,
+			false
 		)
 	);
 	initialBoardState.push(	// BISHOPS
 		new Piece(
 			new Position(2, y),
 			PieceType.BISHOP,
-			teamType
+			teamType,
+			false
 		)
 	);
 	initialBoardState.push(
 		new Piece(
 			new Position(5, y),
 			PieceType.BISHOP,
-			teamType
+			teamType,
+			false
 		)
 	);
 	initialBoardState.push(	// KING AND QUEEN
 		new Piece(
 			new Position(4, y),
 			PieceType.KING,
-			teamType
+			teamType,
+			false
 		)
 	);
 	initialBoardState.push(
 		new Piece(
 			new Position(3, y),
 			PieceType.QUEEN,
-			teamType
+			teamType,
+			false
 		)
 	);
 }
@@ -87,13 +98,15 @@ for (let i = 0; i < 8; i++) {
 	initialBoardState.push(
 		new Pawn(
 			new Position(i, 6),
-			TeamType.OPPONENT	// BLACK
+			TeamType.OPPONENT,	// BLACK
+			false
 		)
 	);
 	initialBoardState.push(
 		new Pawn(
 			new Position(i, 1),
-			TeamType.OUR		// WHITE
+			TeamType.OUR,		// WHITE
+			false
 		)
 	);
 }

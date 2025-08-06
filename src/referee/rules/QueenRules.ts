@@ -42,7 +42,7 @@ export const queenMove = (
 export const getPossibleQueenMoves = (
 	queen:		Piece,
 	boardState:	Piece[]
-) => {
+): Position[] => {
 	const possibleMoves: Position[] = [];
 
 	// top movement

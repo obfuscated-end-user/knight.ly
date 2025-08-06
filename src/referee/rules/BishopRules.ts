@@ -42,7 +42,7 @@ export const bishopMove = (
 export const getPossibleBishopMoves = (
 	bishop: 	Piece,
 	boardState:	Piece[]
-) => {
+): Position[] => {
 	const possibleMoves: Position[] = [];
 
 	// upper right

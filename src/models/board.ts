@@ -1,5 +1,16 @@
-import { getPossibleBishopMoves, getPossibleKingMoves, getPossibleKnightMoves, getPossiblePawnMoves, getPossibleQueenMoves, getPossibleRookMoves } from "../referee/rules";
-import { PieceType, TeamType } from "../types";
+import {
+	getCastlingMoves,
+	getPossibleBishopMoves,
+	getPossibleKingMoves,
+	getPossibleKnightMoves,
+	getPossiblePawnMoves,
+	getPossibleQueenMoves,
+	getPossibleRookMoves
+} from "../referee/rules";
+import {
+	PieceType,
+	TeamType
+} from "../types";
 import { Pawn } from "./pawn";
 import { Piece } from "./Piece";
 import { Position } from "./Position";
@@ -20,22 +31,39 @@ export class Board {
 	calculateAllMoves() {
 		// calculate the moves of all the pieces
 		for (const piece of this.pieces) {
-			// piece.possibleMoves = getValidMoves(p, currentPieces);
 			piece.possibleMoves = this.getValidMoves(piece, this.pieces);
 		}
 
-		// check if the current team moves are valid, this includes if the current king is on check, etc.
+		// calculate castling moves
+		for (const king of this.pieces.filter((p) => p.isKing)) {
+			// king.possibleMoves = getCastlingMoves(king, this.pieces);
+			
+			// THIS DOESN'T WORK ↓↓↓
+			// if (king.possibleMoves === undefined) continue;
+
+			// so i appended the bang (!) instead
+			king.possibleMoves = [
+				...king.possibleMoves!,
+				...getCastlingMoves(king, this.pieces)
+			];
+		}
+
+		// check if the current team moves are valid, this includes if the
+		// current king is on check, etc.
 		this.checkCurrentTeamMoves();
 
 		// remove the possible moves for the team that is not playing
-		for (const piece of this.pieces.filter((p) => p.team !== this.currentTeam)) {
+		for (const piece of this.pieces.filter(
+			(p) => p.team !== this.currentTeam)
+		)
 			piece.possibleMoves = [];
-		}
 	}
 
 	checkCurrentTeamMoves() {
 		// loop through all the current team's pieces
-		for (const piece of this.pieces.filter((p) => p.team === this.currentTeam)) {
+		for (const piece of this.pieces.filter(
+			(p) => p.team === this.currentTeam)
+		) {
 			if (piece.possibleMoves === undefined) continue;
 
 			// simulate all the moves of a piece
@@ -43,28 +71,46 @@ export class Board {
 				const simulatedBoard = this.clone();
 
 				// remove the piece at the destined position
-				simulatedBoard.pieces = simulatedBoard.pieces.filter((p) => !p.samePosition(move));
+				simulatedBoard.pieces = simulatedBoard.pieces.filter(
+					(p) => !p.samePosition(move)
+				);
 
 				// get the piece of the cloned board
 				// guarantee that clonedPiece exists by using a !
-				const clonedPiece = simulatedBoard.pieces.find((p) => p.samePiecePosition(piece))!;
+				const clonedPiece = simulatedBoard.pieces.find(
+					(p) => p.samePiecePosition(piece)
+				)!;
 				clonedPiece.position = move.clone();
 
 				// get the king of the cloned board
-				const clonedKing = simulatedBoard.pieces.find((p) => p.isKing && p.team === simulatedBoard.currentTeam)!;
+				const clonedKing = simulatedBoard.pieces.find(
+					(p) => p.isKing && p.team === simulatedBoard.currentTeam
+				)!;
 
 				// loop through enemy pieces, update their possible moves, and
 				// check if the current team's king will be in danger
-				for (const enemy of simulatedBoard.pieces.filter((p) => p.team !== simulatedBoard.currentTeam)) {
-					enemy.possibleMoves = simulatedBoard.getValidMoves(enemy, simulatedBoard.pieces);
+				for (const enemy of simulatedBoard.pieces.filter(
+					(p) => p.team !== simulatedBoard.currentTeam)
+				) {
+					enemy.possibleMoves = simulatedBoard.getValidMoves(
+						enemy, simulatedBoard.pieces
+					);
 
 					if (enemy.isPawn) {
-						if (enemy.possibleMoves.some((m) => m.x !== enemy.position.x && m.samePosition(clonedKing.position))) {
-							piece.possibleMoves = piece.possibleMoves?.filter((m) => !m.samePosition(move));
-						}
+						if (enemy.possibleMoves.some((m) =>
+							(m.x !== enemy.position.x) &&
+							m.samePosition(clonedKing.position))
+						)
+							piece.possibleMoves = piece.possibleMoves?.filter(
+								(m) => !m.samePosition(move)
+							);
 					} else {
-						if (enemy.possibleMoves.some((m) => m.samePosition(clonedKing.position))) {
-							piece.possibleMoves = piece.possibleMoves?.filter((m) => !m.samePosition(move));
+						if (enemy.possibleMoves.some(
+							(m) => m.samePosition(clonedKing.position))
+						) {
+							piece.possibleMoves = piece.possibleMoves?.filter(
+								(m) => !m.samePosition(move)
+							);
 						}
 					}
 				}
@@ -91,7 +137,13 @@ export class Board {
 		}
 	}
 
-	playMove(enPassantMove: boolean, validMove: boolean, playedPiece: Piece, destination: Position, originalPosition: Position): boolean {
+	playMove(
+		enPassantMove:		boolean,
+		validMove:			boolean,
+		playedPiece:		Piece,
+		destination:		Position,
+		originalPosition:	Position
+	): boolean {
 		const pawnDirection: number =		//	  w    b
 			(playedPiece.team === TeamType.OUR) ? 1 : -1;
 		if (enPassantMove) {
@@ -100,13 +152,15 @@ export class Board {
 				if (piece.samePosition(originalPosition)) {
 					piece.position.x = destination.x;
 					piece.position.y = destination.y;
+					piece.hasMoved = true;
 					if (piece.isPawn)
 						(piece as Pawn).enPassant = false;
 					results.push(piece);
 				} else if (!(piece.samePosition(
 					new Position(destination.x, destination.y - pawnDirection)))
 				) {
-					if (piece.isPawn) (piece as Pawn).enPassant = false;
+					if (piece.isPawn)
+						(piece as Pawn).enPassant = false;
 					results.push(piece);
 				}
 				return results;
@@ -126,7 +180,7 @@ export class Board {
 					);
 					piece.position.x = destination.x;
 					piece.position.y = destination.y;
-
+					piece.hasMoved = true;
 					
 					results.push(piece);
 				} else if (!piece.samePosition(destination)) {

@@ -9,18 +9,21 @@ export class Piece {
 	position:		Position;
 	type:			PieceType;
 	team:			TeamType;
+	hasMoved:		boolean;
 	possibleMoves?:	Position[];
 
 	constructor(
-		position:	Position,
-		type:		PieceType,
-		team:		TeamType,
+		position:		Position,
+		type:			PieceType,
+		team:			TeamType,
+		hasMoved:		boolean,
 		possibleMoves:	Position[] = []
 	) {
 		this.image = `/pieces-svg/${type}${team}.svg`;
 		this.position = position;
 		this.type = type;
 		this.team = team;
+		this.hasMoved = hasMoved;
 		this.possibleMoves = possibleMoves;
 	}
 
@@ -61,6 +64,7 @@ export class Piece {
 			this.position.clone(),
 			this.type,
 			this.team,
+			this.hasMoved,
 			this.possibleMoves?.map((m) => m.clone())
 		);
 	}

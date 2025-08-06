@@ -54,7 +54,7 @@ export const rookMove = (
 export const getPossibleRookMoves = (
 	rook:		Piece,
 	boardState:	Piece[]
-) => {
+): Position[] => {
 	const possibleMoves: Position[] = [];
 
 	// top movement

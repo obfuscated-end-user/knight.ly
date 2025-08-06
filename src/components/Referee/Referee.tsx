@@ -40,11 +40,18 @@ export default function Referee() {
 
 		// odd = white, even = black
 		// prevents a team from making a move if it's not their turn
-		if ((playedPiece.team === TeamType.OUR) && (board.totalTurns % 2 !== 1))
-			return false;
-		if ((playedPiece.team === TeamType.OPPONENT) && (board.totalTurns % 2 !== 0)) return false;
+		if (
+			(playedPiece.team === TeamType.OUR) &&
+			(board.totalTurns % 2 !== 1)
+		) return false;
+		if (
+			(playedPiece.team === TeamType.OPPONENT) &&
+			(board.totalTurns % 2 !== 0)
+		) return false;
 		let playedMoveIsValid = false;
-		const validMove = playedPiece.possibleMoves?.some((m) => m.samePosition(destination));
+		const validMove = playedPiece.possibleMoves?.some(
+			(m) => m.samePosition(destination)
+		);
 		// prevent pawn promotion by simply dragging a pawn to the promotion rows
 		if (!validMove) return false;
 		const enPassantMove = isEnPassant(
@@ -54,13 +61,11 @@ export default function Referee() {
 			playedPiece.team
 		);
 		// you added this because of a random unseen bug
-		const originalPosition = new Position(playedPiece.position.x, playedPiece.position.y);
-
+		const originalPosition = new Position(
+			playedPiece.position.x, playedPiece.position.y
+		);
 		// playMove() modifies the board, thus, we need to call setBoard
 		setBoard(() => {
-			// remove this later, i know it looks stupid
-			// ypreviousBoard = new Board([], 0);
-
 			const clonedBoard = board.clone();
 			clonedBoard.totalTurns += 1;
 			// playing the move
@@ -71,27 +76,23 @@ export default function Referee() {
 				destination,
 				originalPosition
 			);
-
 			return clonedBoard;
 		})
 		// this is for promoting the pawn
 		let promotionRow: number =
 			(playedPiece.team === TeamType.OUR) ? 7 : 0;
-
 		if (
 			(destination.y === promotionRow) &&
 			(playedPiece.isPawn)
 		) {
 			modalRef.current?.classList.remove("hidden");
 			setPromotionPawn(() => {
-				// previousPromotionPawn = undefined;
 				const clonedPlayedPiece = playedPiece.clone();
 				clonedPlayedPiece.position = destination.clone();
 				return clonedPlayedPiece;
 			});
 		}
 
-		
 		return playedMoveIsValid;
 	}
 
@@ -124,6 +125,7 @@ export default function Referee() {
 		return false;
 	}
 
+	// this isn't used
 	function isValidMove(
 		initialPosition:	Position,	// previous (x, y) location
 		desiredPosition:	Position,	// destined (x, y) location
@@ -194,22 +196,24 @@ export default function Referee() {
 			return;
 
 		setBoard(() => {
-			// previousBoard = new Board([], 0);
 			const clonedBoard = board.clone();
 			clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
-			if (piece.samePiecePosition(promotionPawn)) {
-				results.push(new Piece(piece.position.clone(), pieceType, piece.team));
-			} else {
-				results.push(piece);
-			}
-			return results;
-		}, [] as Piece[]);
+				if (piece.samePiecePosition(promotionPawn))
+					results.push(
+						new Piece(
+							piece.position.clone(),
+							pieceType,
+							piece.team,
+							true
+						)
+					);
+				else
+					results.push(piece);
+				return results;
+			}, [] as Piece[]);
 			clonedBoard.calculateAllMoves();
 			return clonedBoard;
 		});
-
-		// board.pieces = 
-		// updatePossibleMoves();
 		modalRef.current?.classList.add("hidden");
 	}
 
@@ -220,7 +224,9 @@ export default function Referee() {
 
 	return (
 		<>
-			<p style={{color: "white", fontSize: "24px"}}>{board.totalTurns}</p>
+			<p style={{color: "white", fontSize: "24px"}}>
+				move {board.totalTurns}
+			</p>
 			<div id="pawn-promotion-modal" className="hidden" ref={modalRef}>
 				<div className="modal-body">
 					<img
