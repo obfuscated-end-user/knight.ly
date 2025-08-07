@@ -1,18 +1,11 @@
 import {
+	use,
 	useEffect,
 	useRef,
 	useState
 } from "react";
 import { initialBoard } from "../../Constants";
 import Chessboard from "../Chessboard/Chessboard";
-import {
-	bishopMove,
-	kingMove,
-	knightMove,
-	pawnMove,
-	queenMove,
-	rookMove,
-} from "../../referee/rules";
 import {
 	Piece,
 	Position
@@ -23,17 +16,19 @@ import {
 } from "../../types";
 import { Pawn } from "../../models/pawn";
 import { Board } from "../../models/board";
+import "./referee.css";
 
 export default function Referee() {
-	const [board, setBoard] = useState<Board>(initialBoard);
+	// clone() ensures that we're not modifying the original board
+	const [board, setBoard] = useState<Board>(initialBoard.clone());
 	const [promotionPawn, setPromotionPawn] = useState<Piece>();
+	const [modalMessage, setModalMessage] = useState("");
 	const modalRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => board.calculateAllMoves(), []);
+	const endgameModalRef = useRef<HTMLDivElement>(null);
 
 	function playMove(playedPiece: Piece, destination: Position): boolean {
 		// remember that everything is ignored below a return statement once it
-		// gets there successfullt ahh i don't fucking know.
+		// gets there successfully
 
 		// if the played piece does not have any legal moves
 		if (playedPiece.possibleMoves === undefined) return false;
@@ -76,6 +71,17 @@ export default function Referee() {
 				destination,
 				originalPosition
 			);
+
+			// show checkmate modal if a team wins
+			if (clonedBoard.stalemate) {
+				setModalMessage("Stalemate. You both suck.");
+				endgameModalRef.current?.classList.remove("hidden");
+			} else if (clonedBoard.winningTeam !== undefined) {
+				setModalMessage(
+					`${clonedBoard.winningTeam === TeamType.OUR ?
+						"White" : "Black"} won.`);
+				endgameModalRef.current?.classList.remove("hidden");
+			}
 			return clonedBoard;
 		})
 		// this is for promoting the pawn
@@ -125,72 +131,6 @@ export default function Referee() {
 		return false;
 	}
 
-	// this isn't used
-	function isValidMove(
-		initialPosition:	Position,	// previous (x, y) location
-		desiredPosition:	Position,	// destined (x, y) location
-		type:				PieceType,	// what piece this is (pawn, rook, etc.)
-		team:				TeamType,	// whose side this piece is on
-	): boolean {
-		// remember that coordinates start from (0, 0) at the bottom left
-		// corner of the board
-		let validMove: boolean = false;
-		switch(type) {
-			case PieceType.PAWN:
-				validMove = pawnMove(
-					initialPosition,
-					desiredPosition,
-					team,
-					board.pieces
-				);
-				break;
-			case PieceType.KNIGHT:
-				validMove = knightMove(
-					initialPosition,
-					desiredPosition,
-					team,
-					board.pieces
-				);
-				break;
-			case PieceType.BISHOP:
-				validMove = bishopMove(
-					initialPosition,
-					desiredPosition,
-					team,
-					board.pieces
-				);
-				break;
-			case PieceType.ROOK:
-				validMove = rookMove(
-					initialPosition,
-					desiredPosition,
-					team,
-					board.pieces
-				);
-				break;
-			case PieceType.QUEEN:
-				validMove = queenMove(
-					initialPosition,
-					desiredPosition,
-					team,
-					board.pieces
-				);
-				break;
-			case PieceType.KING:
-				validMove = kingMove(
-					initialPosition,
-					desiredPosition,
-					team,
-					board.pieces
-				);
-				break;
-			case PieceType.UNKNOWN:
-				console.log("UNKNOWN");
-				break;
-		}
-		return validMove;
-	}
-
 	function promotePawn(pieceType: PieceType) {
 		if (promotionPawn === undefined)
 			return;
@@ -222,12 +162,14 @@ export default function Referee() {
 		return (promotionPawn?.team === TeamType.OUR) ? "l" : "d";
 	}
 
+	function restartGame() {
+		endgameModalRef.current?.classList.add("hidden");
+		setBoard(initialBoard.clone());
+	}
+
 	return (
 		<>
-			<p style={{color: "white", fontSize: "24px"}}>
-				move {board.totalTurns}
-			</p>
-			<div id="pawn-promotion-modal" className="hidden" ref={modalRef}>
+			<div className="modal hidden" ref={modalRef}>
 				<div className="modal-body">
 					<img
 						onClick={() => promotePawn(PieceType.ROOK)}
@@ -247,10 +189,32 @@ export default function Referee() {
 					/>
 				</div>
 			</div>
-			<Chessboard
-				playMove={playMove}
-				pieces={board.pieces}
-			/>
+			<div className="modal hidden" ref={endgameModalRef}>
+				<div className="modal-body">
+					<div className="checkmate-body">
+						<span>{modalMessage}</span>
+						<button onClick={restartGame}>Play again</button>
+					</div>
+				</div>
+			</div>
+			<main>
+				<Chessboard
+					playMove={playMove}
+					pieces={board.pieces}
+				/>
+				<div className="information">
+					<p>
+						Total turns: <b>{board.totalTurns}</b>
+					</p>
+					<p>
+						<b>{(board.currentTeam === TeamType.OPPONENT) ?
+						"Black" : "White"}</b> to move.
+					</p>
+					<div className="moves">
+						{board.moves.map((m) => <p>{m.toMessage()}</p>)}
+					</div>
+				</div>
+			</main>
 		</>
 	);
 }

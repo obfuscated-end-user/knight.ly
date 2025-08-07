@@ -91,6 +91,40 @@ for (let p = 0; p < 2; p++) {
 			false
 		)
 	);
+
+	// for debugging stalemate, comment this out
+	/* initialBoardState.push(
+		new Piece(
+			new Position(7, 7),
+			PieceType.KING,
+			TeamType.OPPONENT,
+			false
+		)
+	);
+	initialBoardState.push(
+		new Piece(
+			new Position(0, 0),
+			PieceType.KING,
+			TeamType.OUR,
+			false
+		)
+	);
+	initialBoardState.push(
+		new Piece(
+			new Position(6, 4),
+			PieceType.QUEEN,
+			TeamType.OUR,
+			false
+		)
+	);
+	initialBoardState.push(
+		new Piece(
+			new Position(6, 3),
+			PieceType.QUEEN,
+			TeamType.OUR,
+			false
+		)
+	); */
 }
 
 // PAWNS
@@ -111,4 +145,6 @@ for (let i = 0; i < 8; i++) {
 	);
 }
 
-export const initialBoard: Board = new Board(initialBoardState, 1);
+export const initialBoard: Board = new Board(initialBoardState, 1, []);
+
+initialBoard.calculateAllMoves();

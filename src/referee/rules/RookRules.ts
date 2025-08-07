@@ -59,6 +59,9 @@ export const getPossibleRookMoves = (
 
 	// top movement
 	for (let i = 1; i < 8; i++) {
+		// if destination is outside of the board, don't look any further
+		if (rook.position.y + i > 7) break;
+
 		const destination = new Position(
 			rook.position.x,
 			rook.position.y + i
@@ -74,6 +77,8 @@ export const getPossibleRookMoves = (
 
 	// bottom movement
 	for (let i = 1; i < 8; i++) {
+		if (rook.position.y - i < 0) break;
+
 		const destination = new Position(
 			rook.position.x,
 			rook.position.y - i
@@ -89,6 +94,8 @@ export const getPossibleRookMoves = (
 
 	// left movement
 	for (let i = 1; i < 8; i++) {
+		if (rook.position.x - i < 0) break;
+
 		const destination = new Position(
 			rook.position.x - i,
 			rook.position.y
@@ -104,6 +111,8 @@ export const getPossibleRookMoves = (
 
 	// right movement
 	for (let i = 1; i < 8; i++) {
+		if (rook.position.x + i > 7) break;
+
 		const destination = new Position(
 			rook.position.x + i,
 			rook.position.y

@@ -3,3 +3,7 @@
 	place-content: center;
 	background-color: #024823;
 }
+
+p {
+	margin: 0;
+}

@@ -11,17 +11,23 @@ import {
 	PieceType,
 	TeamType
 } from "../types";
+import { Move } from "./move";
 import { Pawn } from "./pawn";
 import { Piece } from "./Piece";
 import { Position } from "./Position";
 
 export class Board {
-	pieces:	Piece[];
-	totalTurns: number;
+	pieces:			Piece[];
+	totalTurns:		number;
+	winningTeam?:	TeamType;
+	stalemate:		boolean;
+	moves:			Move[];
 
-	constructor(pieces: Piece[], totalTurns: number) {
+	constructor(pieces: Piece[], totalTurns: number, moves: Move[]) {
 		this.pieces = pieces;
 		this.totalTurns = totalTurns;
+		this.stalemate = false;
+		this.moves = moves;
 	}
 
 	get currentTeam(): TeamType {
@@ -52,11 +58,34 @@ export class Board {
 		// current king is on check, etc.
 		this.checkCurrentTeamMoves();
 
+		// all the moves from the enemy team
+		const enemyMoves = this.pieces.filter(
+			(p) => p.team !== this.currentTeam).map(
+				(p) => p.possibleMoves).flat();
+
 		// remove the possible moves for the team that is not playing
 		for (const piece of this.pieces.filter(
 			(p) => p.team !== this.currentTeam)
 		)
 			piece.possibleMoves = [];
+
+		if (this.pieces.filter(
+			(p) => p.team === this.currentTeam).some((p) =>
+				p.possibleMoves !== undefined && p.possibleMoves.length > 0)
+		) return;
+
+		// if any of the opponent's team pieces can attack the king, then he is
+		// in check and the other team has won
+
+		// the king position of the current team
+		const kingPosition = this.pieces.find(
+			(p) => p.isKing && p.team === this.currentTeam)!.position;
+
+		if (enemyMoves.some((m) => m?.samePosition(kingPosition)))
+			this.winningTeam = (this.currentTeam === TeamType.OUR) ?
+				TeamType.OPPONENT : TeamType.OUR;
+		else
+			this.stalemate = true;
 	}
 
 	checkCurrentTeamMoves() {
@@ -146,7 +175,33 @@ export class Board {
 	): boolean {
 		const pawnDirection: number =		//	  w    b
 			(playedPiece.team === TeamType.OUR) ? 1 : -1;
-		if (enPassantMove) {
+		
+		const destinationPiece = this.pieces.find(
+			(p) => p.samePosition(destination));
+
+		if (
+			playedPiece.isKing &&
+			destinationPiece?.isRook &&
+			(destinationPiece.team === playedPiece.team)
+		) {
+			const direction = (destinationPiece.position.x -
+				playedPiece.position.x > 0) ? 1 : -1;
+			const newKingXPosition = playedPiece.position.x + direction * 2;
+
+			this.pieces = this.pieces.map((p) => {
+				// change the positions of the following pieces
+				if (p.samePiecePosition(playedPiece))
+					p.position.x = newKingXPosition;				// KING
+				else if (p.samePiecePosition(destinationPiece))
+					p.position.x = newKingXPosition - direction;	// ROOK
+				return p;
+			});
+			// this.calculateAllMoves();
+
+			// for move history
+			// this.moves.push(destination.clone());
+			// return true;
+		} else if (enPassantMove) {
 			// https://en.wikipedia.org/wiki/En_passant
 			this.pieces = this.pieces.reduce((results, piece) => {
 				if (piece.samePosition(originalPosition)) {
@@ -165,7 +220,7 @@ export class Board {
 				}
 				return results;
 			}, [] as Piece[]);
-			this.calculateAllMoves();
+			// this.calculateAllMoves();
 		// updates the piece position and if a piece is attacked,
 		// removes it
 		} else if (validMove) {
@@ -189,16 +244,19 @@ export class Board {
 				}
 				return results;
 			}, [] as Piece[]);
-			this.calculateAllMoves();
+			// this.calculateAllMoves();
 		} else
 			return false;
+		this.moves.push(new Move(playedPiece.team, playedPiece.type, playedPiece.position.clone(), destination.clone()));
+		this.calculateAllMoves();
 		return true;
 	}
 
-	clone() {
+	clone(): Board {
 		return new Board(
 			this.pieces.map((p) => p.clone()),
-			this.totalTurns
+			this.totalTurns,
+			this.moves.map((m) => m.clone())
 		);
 	}
 }

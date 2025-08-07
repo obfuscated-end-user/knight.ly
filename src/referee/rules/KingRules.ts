@@ -58,6 +58,13 @@ export const getPossibleKingMoves = (
 			king.position.y + i
 		);
 
+		// if the move is outside of the board, don't add it
+		if (
+			(destination.x < 0) || (destination.x > 7) ||
+			(destination.y < 0) || (destination.y > 7)
+		)
+			break;
+
 		if (!isTileOccupied(destination, boardState))
 			possibleMoves.push(destination);
 		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
@@ -72,6 +79,12 @@ export const getPossibleKingMoves = (
 			king.position.x,
 			king.position.y - i
 		);
+
+		if (
+			(destination.x < 0) || (destination.x > 7) ||
+			(destination.y < 0) || (destination.y > 7)
+		)
+			break;
 
 		if (!isTileOccupied(destination, boardState))
 			possibleMoves.push(destination);
@@ -88,6 +101,12 @@ export const getPossibleKingMoves = (
 			king.position.y
 		);
 
+		if (
+			(destination.x < 0) || (destination.x > 7) ||
+			(destination.y < 0) || (destination.y > 7)
+		)
+			break;
+
 		if (!isTileOccupied(destination, boardState))
 			possibleMoves.push(destination);
 		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
@@ -102,6 +121,12 @@ export const getPossibleKingMoves = (
 			king.position.x + i,
 			king.position.y
 		);
+
+		if (
+			(destination.x < 0) || (destination.x > 7) ||
+			(destination.y < 0) || (destination.y > 7)
+		)
+			break;
 
 		if (!isTileOccupied(destination, boardState))
 			possibleMoves.push(destination);
@@ -118,6 +143,12 @@ export const getPossibleKingMoves = (
 			king.position.y + i
 		);
 
+		if (
+			(destination.x < 0) || (destination.x > 7) ||
+			(destination.y < 0) || (destination.y > 7)
+		)
+			break;
+
 		if (!isTileOccupied(destination, boardState))
 			possibleMoves.push(destination);
 		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
@@ -132,6 +163,12 @@ export const getPossibleKingMoves = (
 			king.position.x + i,
 			king.position.y - i
 		);
+
+		if (
+			(destination.x < 0) || (destination.x > 7) ||
+			(destination.y < 0) || (destination.y > 7)
+		)
+			break;
 
 		if (!isTileOccupied(destination, boardState))
 			possibleMoves.push(destination);
@@ -148,6 +185,12 @@ export const getPossibleKingMoves = (
 			king.position.y - i
 		);
 
+		if (
+			(destination.x < 0) || (destination.x > 7) ||
+			(destination.y < 0) || (destination.y > 7)
+		)
+			break;
+
 		if (!isTileOccupied(destination, boardState))
 			possibleMoves.push(destination);
 		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
@@ -162,6 +205,12 @@ export const getPossibleKingMoves = (
 			king.position.x - i,
 			king.position.y + i
 		);
+
+		if (
+			(destination.x < 0) || (destination.x > 7) ||
+			(destination.y < 0) || (destination.y > 7)
+		)
+			break;
 
 		if (!isTileOccupied(destination, boardState))
 			possibleMoves.push(destination);
