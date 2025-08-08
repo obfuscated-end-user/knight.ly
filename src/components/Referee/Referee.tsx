@@ -69,20 +69,7 @@ export default function Referee() {
 				destination,
 				originalPosition
 			);
-
-			// show a modal if endgame stuff happens
-			if (clonedBoard.draw) {
-				setModalMessage("Draw. Nobody won.");
-				endgameModalRef.current?.classList.remove("hidden");
-			} else if (clonedBoard.stalemate) {
-				setModalMessage("Stalemate. You both suck.");
-				endgameModalRef.current?.classList.remove("hidden");
-			} else if (clonedBoard.winningTeam !== undefined) {
-				setModalMessage(
-					`${clonedBoard.winningTeam === TeamType.OUR ?
-						"White" : "Black"} won.`);
-				endgameModalRef.current?.classList.remove("hidden");
-			}
+			checkForEndGame(clonedBoard);
 			return clonedBoard;
 		})
 		// this is for promoting the pawn
@@ -153,6 +140,7 @@ export default function Referee() {
 				return results;
 			}, [] as Piece[]);
 			clonedBoard.calculateAllMoves();
+			checkForEndGame(clonedBoard);
 			return clonedBoard;
 		});
 		modalRef.current?.classList.add("hidden");
@@ -166,6 +154,22 @@ export default function Referee() {
 	function restartGame() {
 		endgameModalRef.current?.classList.add("hidden");
 		setBoard(initialBoard.clone());
+	}
+
+	function checkForEndGame(board: Board) {
+		// show a modal if endgame stuff happens
+		if (board.draw) {
+			setModalMessage("Draw. Nobody won.");
+			endgameModalRef.current?.classList.remove("hidden");
+		} else if (board.stalemate) {
+			setModalMessage("Stalemate. You both suck.");
+			endgameModalRef.current?.classList.remove("hidden");
+		} else if (board.winningTeam !== undefined) {
+			setModalMessage(
+				`${board.winningTeam === TeamType.OUR ?
+					"White" : "Black"} won.`);
+			endgameModalRef.current?.classList.remove("hidden");
+		}
 	}
 
 	return (
@@ -212,7 +216,9 @@ export default function Referee() {
 						"Black" : "White"}</b> to move.
 					</p>
 					<div className="moves">
-						{board.moves.map((m, i) => <p key={i}>{m.toMessage()}</p>)}
+						{board.moves.map(
+							(m, i) => <p key={i}>{m.toMessage()}</p>
+						)}
 					</div>
 				</div>
 			</main>

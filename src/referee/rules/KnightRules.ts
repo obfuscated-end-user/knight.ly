@@ -55,19 +55,19 @@ export const getPossibleKnightMoves = (
 			const verticalMove = new Position(
 				knight.position.x + j,
 				knight.position.y + i * 2
-			)
+			);
 			const horizontalMove = new Position(
 				knight.position.x + i * 2,
 				knight.position.y + j
-			)
+			);
 
 			if (isTileEmptyOrOccupiedByOpponent(
-				verticalMove, boardState, knight.team
-			))
+				verticalMove, boardState, knight.team)
+			)
 				possibleMoves.push(verticalMove);
 			if (isTileEmptyOrOccupiedByOpponent(
-				horizontalMove, boardState, knight.team
-			))
+				horizontalMove, boardState, knight.team)
+			)
 				possibleMoves.push(horizontalMove);
 		}
 	}

@@ -15,6 +15,7 @@ import { Move } from "./move";
 import { Pawn } from "./pawn";
 import { Piece } from "./Piece";
 import { Position } from "./Position";
+import { SimplifiedPiece } from "./simplifiedPiece";
 
 export class Board {
 	pieces:			Piece[];
@@ -23,13 +24,23 @@ export class Board {
 	stalemate:		boolean;
 	draw:			boolean;
 	moves:			Move[];
+	boardHistory:	{ [key: string]: number };
+	turnsWithNoCaptureOrPawnMove: number;
 
-	constructor(pieces: Piece[], totalTurns: number, moves: Move[]) {
+	constructor(
+		pieces:			Piece[],
+		totalTurns:		number,
+		moves:			Move[],
+		boardHistory:	{ [key: string]: number },
+		turnsWithNoCaptureOrPawnMove: number
+	) {
 		this.pieces = pieces;
 		this.totalTurns = totalTurns;
 		this.stalemate = false;
 		this.draw = false;
 		this.moves = moves;
+		this.boardHistory = boardHistory;
+		this.turnsWithNoCaptureOrPawnMove = turnsWithNoCaptureOrPawnMove;
 	}
 
 	get currentTeam(): TeamType {
@@ -71,23 +82,16 @@ export class Board {
 		)
 			piece.possibleMoves = [];
 
+		this.checkForFiftyMoveRule();
+		this.checkForDraw();
+		this.checkForThreefoldRepetition();
+
 		if (this.pieces.filter(
 			(p) => p.team === this.currentTeam).some((p) =>
 				p.possibleMoves !== undefined && p.possibleMoves.length > 0)
 		) return;
 
-		// if any of the opponent's team pieces can attack the king, then he is
-		// in check and the other team has won
-
-		// the king position of the current team
-		const kingPosition = this.pieces.find(
-			(p) => p.isKing && p.team === this.currentTeam)!.position;
-
-		if (enemyMoves.some((m) => m?.samePosition(kingPosition)))
-			this.winningTeam = (this.currentTeam === TeamType.OUR) ?
-				TeamType.OPPONENT : TeamType.OUR;
-		else
-			this.stalemate = true;
+		this.checkForStalemate(enemyMoves);
 	}
 
 	checkCurrentTeamMoves() {
@@ -181,6 +185,8 @@ export class Board {
 		const destinationPiece = this.pieces.find(
 			(p) => p.samePosition(destination));
 
+		const piecesBeforeMove: number = this.pieces?.length;
+
 		if (
 			playedPiece.isKing &&
 			destinationPiece?.isRook &&
@@ -198,11 +204,6 @@ export class Board {
 					p.position.x = newKingXPosition - direction;	// ROOK
 				return p;
 			});
-			// this.calculateAllMoves();
-
-			// for move history
-			// this.moves.push(destination.clone());
-			// return true;
 		} else if (enPassantMove) {
 			// https://en.wikipedia.org/wiki/En_passant
 			this.pieces = this.pieces.reduce((results, piece) => {
@@ -210,19 +211,16 @@ export class Board {
 					piece.position.x = destination.x;
 					piece.position.y = destination.y;
 					piece.hasMoved = true;
-					if (piece.isPawn)
-						(piece as Pawn).enPassant = false;
+					if (piece.isPawn) (piece as Pawn).enPassant = false;
 					results.push(piece);
 				} else if (!(piece.samePosition(
 					new Position(destination.x, destination.y - pawnDirection)))
 				) {
-					if (piece.isPawn)
-						(piece as Pawn).enPassant = false;
+					if (piece.isPawn) (piece as Pawn).enPassant = false;
 					results.push(piece);
 				}
 				return results;
 			}, [] as Piece[]);
-			// this.calculateAllMoves();
 		// updates the piece position and if a piece is attacked,
 		// removes it
 		} else if (validMove) {
@@ -233,8 +231,7 @@ export class Board {
 					if (piece.isPawn)
 						(piece as Pawn).enPassant = (
 							Math.abs(originalPosition.y - destination.y) === 2)
-							&& (piece.type === PieceType.PAWN
-					);
+							&& (piece.type === PieceType.PAWN);
 					piece.position.x = destination.x;
 					piece.position.y = destination.y;
 					piece.hasMoved = true;
@@ -246,19 +243,27 @@ export class Board {
 				}
 				return results;
 			}, [] as Piece[]);
-			// this.calculateAllMoves();
 		} else
 			return false;
+
+		this.turnsWithNoCaptureOrPawnMove++;
+		if (playedPiece.isPawn || this.pieces.length < piecesBeforeMove)
+			// reset 50 move rule
+			this.turnsWithNoCaptureOrPawnMove = 0;
+
 		this.moves.push(new Move(
 			playedPiece.team,
 			playedPiece.type,
 			playedPiece.position.clone(),
 			destination.clone()
 		));
-
 		this.calculateAllMoves();
-		this.checkForDraw();
+
 		return true;
+	}
+
+	checkForFiftyMoveRule(): void {
+		if (this.turnsWithNoCaptureOrPawnMove >= 50) this.draw = true;
 	}
 
 	checkForDraw(): void {
@@ -298,14 +303,44 @@ export class Board {
 			// one lone king with 2 knights (opponent's team)
 			this.draw = true;
 		}
-		// console.log(this.pieces.filter((p) => p.team === TeamType.OUR).length, this.pieces.filter((p) => p.team === TeamType.OPPONENT).length);
+	}
+
+	checkForThreefoldRepetition(): void {
+		// https://en.wikipedia.org/wiki/Threefold_repetition
+		const simplifiedPieces = this.pieces.map((p) => new SimplifiedPiece(p));
+		const simplifiedPiecesStringified = JSON.stringify(simplifiedPieces);
+
+		if (this.boardHistory[simplifiedPiecesStringified] === undefined)
+			this.boardHistory[simplifiedPiecesStringified] = 1;
+		else
+			this.boardHistory[simplifiedPiecesStringified] += 1;
+
+		if (this.boardHistory[simplifiedPiecesStringified] === 3)
+			this.draw = true;
+	}
+
+	checkForStalemate(enemyMoves: (Position | undefined)[]): void {
+		// if any of the opponent's team pieces can attack the king, then he is
+		// in check and the other team has won
+
+		// the king position of the current team
+		const kingPosition = this.pieces.find(
+			(p) => p.isKing && p.team === this.currentTeam)!.position;
+
+		if (enemyMoves.some((m) => m?.samePosition(kingPosition)))
+			this.winningTeam = (this.currentTeam === TeamType.OUR) ?
+				TeamType.OPPONENT : TeamType.OUR;
+		else
+			this.stalemate = true;
 	}
 
 	clone(): Board {
 		return new Board(
 			this.pieces.map((p) => p.clone()),
 			this.totalTurns,
-			this.moves.map((m) => m.clone())
+			this.moves.map((m) => m.clone()),
+			this.boardHistory,
+			this.turnsWithNoCaptureOrPawnMove
 		);
 	}
 }

@@ -38,8 +38,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
 			const grabY: number = Math.abs(
 				Math.ceil(
 					(e.clientY + window.scrollY - chessboard.offsetTop -
-					chessboardHeight) / GRID_SIZE
-				)
+					chessboardHeight) / GRID_SIZE)
 			);
 			setGrabPosition(new Position(grabX, grabY));
 			// subtract (GRID_SIZE / 2) so you grab the center of the piece
@@ -88,15 +87,13 @@ export default function Chessboard({ playMove, pieces }: Props) {
 			const y: number = Math.abs(
 				Math.ceil(
 					(e.clientY + window.scrollY - chessboard.offsetTop
-					- chessboardHeight) / GRID_SIZE
-				)
+					- chessboardHeight) / GRID_SIZE)
 			);
 			const currentPiece = pieces.find((p) =>
 				p.samePosition(grabPosition)
 			);
 			if (currentPiece) {
 				let success = playMove(currentPiece.clone(), new Position(x, y));
-				// var success = playMove(currentPiece, { x, y });
 				if (!success) {
 					// resets the piece position
 					activePiece.style.position = "relative";

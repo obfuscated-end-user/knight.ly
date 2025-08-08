@@ -15,11 +15,6 @@ export const kingMove = (
 	team:				TeamType,	// whose side this piece is on
 	boardState:			Piece[]		// contains properties about board
 ): boolean => {
-	// prevent the king from moving into tiles where it is in check
-	// castling
-	// check mechanism
-	// game end (checkmate/stalemate)
-
 	// king can only move 1 tile in any direction
 	for (let i = 1; i < 2; i++) {
 		// if (statement1) else if (statement2) else (statement3)

@@ -125,6 +125,6 @@ for (let i = 0; i < 8; i++) {
 	);
 }
 
-export const initialBoard: Board = new Board(initialBoardState, 1, []);
+export const initialBoard: Board = new Board(initialBoardState, 1, [], {}, 0);
 
 initialBoard.calculateAllMoves();
