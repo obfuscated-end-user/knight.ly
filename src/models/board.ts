@@ -21,12 +21,14 @@ export class Board {
 	totalTurns:		number;
 	winningTeam?:	TeamType;
 	stalemate:		boolean;
+	draw:			boolean;
 	moves:			Move[];
 
 	constructor(pieces: Piece[], totalTurns: number, moves: Move[]) {
 		this.pieces = pieces;
 		this.totalTurns = totalTurns;
 		this.stalemate = false;
+		this.draw = false;
 		this.moves = moves;
 	}
 
@@ -247,9 +249,56 @@ export class Board {
 			// this.calculateAllMoves();
 		} else
 			return false;
-		this.moves.push(new Move(playedPiece.team, playedPiece.type, playedPiece.position.clone(), destination.clone()));
+		this.moves.push(new Move(
+			playedPiece.team,
+			playedPiece.type,
+			playedPiece.position.clone(),
+			destination.clone()
+		));
+
 		this.calculateAllMoves();
+		this.checkForDraw();
 		return true;
+	}
+
+	checkForDraw(): void {
+		// check for draw scenarios
+		// https://www.chess.com/terms/draw-chess
+
+		// true if our team only has a king or has a king + knight/bishop
+		const ourTeamEligibleForDraw = this.pieces.filter(
+			(p) => p.team === TeamType.OUR).length === 1 ||
+			this.pieces.filter(
+				(p) => p.team === TeamType.OUR &&
+				(p.isKing || p.isKnight || p.isBishop)).length === 2;
+		// true if opponent's team only has a king or has a king + knight/bishop
+		const opponentTeamEligibleForDraw = this.pieces.filter(
+			(p) => p.team === TeamType.OPPONENT).length === 1 ||
+			this.pieces.filter(
+				(p) => p.team === TeamType.OPPONENT &&
+				(p.isKing || p.isKnight || p.isBishop)).length === 2;
+		
+		if (ourTeamEligibleForDraw && opponentTeamEligibleForDraw) {
+			this.draw = true;
+		} else if (
+			this.pieces.filter((p) => p.team === TeamType.OUR).length === 3 &&
+			this.pieces.filter(
+				(p) => p.team === TeamType.OUR && p.isKnight).length === 2  &&
+			this.pieces.filter((p) => p.team === TeamType.OPPONENT).length === 1
+		) {
+			// one lone king with 2 knights (our team)
+			this.draw = true;
+		} else if (
+			this.pieces.filter(
+				(p) => p.team === TeamType.OPPONENT).length === 3 &&
+			this.pieces.filter((p) =>
+				p.team === TeamType.OPPONENT && p.isKnight).length === 2 &&
+			this.pieces.filter((p) => p.team === TeamType.OUR).length === 1
+		) {
+			// one lone king with 2 knights (opponent's team)
+			this.draw = true;
+		}
+		// console.log(this.pieces.filter((p) => p.team === TeamType.OUR).length, this.pieces.filter((p) => p.team === TeamType.OPPONENT).length);
 	}
 
 	clone(): Board {

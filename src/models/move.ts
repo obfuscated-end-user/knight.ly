@@ -26,22 +26,22 @@ export class Move {
 		let piece: string = "";
 		switch (this.piece) {
 			case PieceType.PAWN:
-				piece = "pawn";
+				piece = "♟";
 				break;
 			case PieceType.ROOK:
-				piece = "rook";
+				piece = "♜";
 				break;
 			case PieceType.KNIGHT:
-				piece = "knight";
+				piece = "♞";
 				break;
 			case PieceType.BISHOP:
-				piece = "bishop";
+				piece = "♝";
 				break;
 			case PieceType.QUEEN:
-				piece = "queen";
+				piece = "♛";
 				break;
 			case PieceType.KING:
-				piece = "king";
+				piece = "♚";
 				break;
 		}
 

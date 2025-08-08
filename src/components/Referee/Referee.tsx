@@ -1,6 +1,4 @@
 import {
-	use,
-	useEffect,
 	useRef,
 	useState
 } from "react";
@@ -72,8 +70,11 @@ export default function Referee() {
 				originalPosition
 			);
 
-			// show checkmate modal if a team wins
-			if (clonedBoard.stalemate) {
+			// show a modal if endgame stuff happens
+			if (clonedBoard.draw) {
+				setModalMessage("Draw. Nobody won.");
+				endgameModalRef.current?.classList.remove("hidden");
+			} else if (clonedBoard.stalemate) {
 				setModalMessage("Stalemate. You both suck.");
 				endgameModalRef.current?.classList.remove("hidden");
 			} else if (clonedBoard.winningTeam !== undefined) {
@@ -211,7 +212,7 @@ export default function Referee() {
 						"Black" : "White"}</b> to move.
 					</p>
 					<div className="moves">
-						{board.moves.map((m) => <p>{m.toMessage()}</p>)}
+						{board.moves.map((m, i) => <p key={i}>{m.toMessage()}</p>)}
 					</div>
 				</div>
 			</main>
