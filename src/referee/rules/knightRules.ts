@@ -1,5 +1,5 @@
 import { TeamType } from "../../types";
-import { isTileEmptyOrOccupiedByOpponent } from "./GeneralRules";
+import { isTileEmptyOrOccupiedByOpponent } from "./generalRules";
 import {
 	Piece,
 	Position

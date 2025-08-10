@@ -3,7 +3,7 @@ import {
 	isTileEmptyOrOccupiedByOpponent,
 	isTileOccupied,
 	isTileOccupiedByOpponent
-} from "./GeneralRules";
+} from "./generalRules";
 import {
 	Piece,
 	Position

@@ -2,7 +2,7 @@ import {
 	PieceType,
 	TeamType
 } from "../types";
-import { Position } from "./Position";
+import { Position } from "./position";
 
 export class Move {
 	team:			TeamType;

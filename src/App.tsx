@@ -1,8 +1,8 @@
 import "./App.css";
-import "./components/Chessboard/Chessboard";
+import "./components/Chessboard/chessboard";
 import Referee from "./components/Referee/Referee";
-import Header from "./components/Common/Header";
-import Footer from "./components/Common/Footer";
+import Header from "./components/Common/header";
+import Footer from "./components/Common/footer";
 
 export default function App() {
 	return (

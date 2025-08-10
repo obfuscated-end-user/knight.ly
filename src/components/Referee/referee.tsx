@@ -3,7 +3,7 @@ import {
 	useState
 } from "react";
 import { initialBoard } from "../../Constants";
-import Chessboard from "../Chessboard/Chessboard";
+import Chessboard from "../Chessboard/chessboard";
 import {
 	Piece,
 	Position

@@ -13,8 +13,8 @@ import {
 } from "../types";
 import { Move } from "./move";
 import { Pawn } from "./pawn";
-import { Piece } from "./Piece";
-import { Position } from "./Position";
+import { Piece } from "./piece";
+import { Position } from "./position";
 import { SimplifiedPiece } from "./simplifiedPiece";
 
 export class Board {

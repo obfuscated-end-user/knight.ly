@@ -2,8 +2,8 @@ import {
 	useRef,
 	useState
 } from "react";
-import Tile from "../Tile/Tile";
-import "./Chessboard.css";
+import Tile from "../Tile/tile";
+import "./chessboard.css";
 import {
 	VERTICAL_AXIS,
 	HORIZONTAL_AXIS,

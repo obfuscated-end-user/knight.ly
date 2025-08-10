@@ -2,7 +2,7 @@ import { TeamType } from "../../types";
 import {
 	isTileOccupied,
 	isTileOccupiedByOpponent
-} from "./GeneralRules";
+} from "./generalRules";
 import {
 	Piece,
 	Position

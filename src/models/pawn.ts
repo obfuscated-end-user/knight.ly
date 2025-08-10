@@ -2,8 +2,8 @@ import {
 	PieceType,
 	TeamType
 } from "../types";
-import { Piece } from "./Piece";
-import { Position } from "./Position";
+import { Piece } from "./piece";
+import { Position } from "./position";
 
 export class Pawn extends Piece {
 	enPassant?:		boolean;
