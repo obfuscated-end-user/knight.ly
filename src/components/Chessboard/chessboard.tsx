@@ -8,7 +8,7 @@ import {
 	VERTICAL_AXIS,
 	HORIZONTAL_AXIS,
 	GRID_SIZE,
-} from "../../Constants";
+} from "../../constants";
 import {
 	Piece,
 	Position

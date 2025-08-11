@@ -2,7 +2,7 @@ import {
 	useRef,
 	useState
 } from "react";
-import { initialBoard } from "../../Constants";
+import { initialBoard } from "../../constants";
 import Chessboard from "../Chessboard/chessboard";
 import {
 	Piece,
