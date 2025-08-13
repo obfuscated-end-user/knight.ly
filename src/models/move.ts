@@ -22,6 +22,8 @@ export class Move {
 		this.toPosition = toPosition;
 	}
 
+	// modfiy this to use algebraic notation instead
+	// https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
 	toMessage(): string {
 		let piece: string = "";
 		switch (this.piece) {

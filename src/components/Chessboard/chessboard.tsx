@@ -14,6 +14,11 @@ import {
 	Position
 } from "../../models";
 
+/**
+ * An interface is a way to define the structure of an object. It describes what
+ * properties and types an object must have, but doesn't provide implementation.
+ * It helps TypeScript check that objects follow a certain format.
+ */
 interface Props {
 	playMove:	(piece: Piece, position: Position) => boolean;
 	pieces:		Piece[];
@@ -72,7 +77,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
 	 */
 	const chessboardRef = useRef<HTMLDivElement>(null);
 
-	function grabPiece(e: React.MouseEvent) {
+	function grabPiece(e: React.MouseEvent): void {
 		/**
 		 * Detect if the user clicked on a chess piece and then prepare that
 		 * piece for dragging by moving it out of the normal flow, positioning
@@ -123,7 +128,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
 		}
 	}
 
-	function movePiece(e: React.MouseEvent) {
+	function movePiece(e: React.MouseEvent): void {
 		/**
 		 * Update the position of the currently dragged chess piece on the 
 		 * screen as the user moves the mouse, ensuring the piece stays
@@ -165,7 +170,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
 		}
 	}
 
-	function dropPiece (e: React.MouseEvent) {
+	function dropPiece (e: React.MouseEvent): void {
 		/**
 		 * Finalize the move of a dragged chess piece by calculating its drop
 		 * position on the board, attempting to update the game state via
