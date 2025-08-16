@@ -77,13 +77,13 @@ export default function Chessboard({ playMove, pieces }: Props) {
 	 */
 	const chessboardRef = useRef<HTMLDivElement>(null);
 
+	/**
+	 * Detect if the user clicked on a chess piece and then prepare that piece
+	 * for dragging by moving it out of the normal flow, positioning with under
+	 * the mouse cursor, and updating component state to indicate which piece is
+	 * active (being dragged).
+	 */
 	function grabPiece(e: React.MouseEvent): void {
-		/**
-		 * Detect if the user clicked on a chess piece and then prepare that
-		 * piece for dragging by moving it out of the normal flow, positioning
-		 * with under the mouse cursor, and updating component state to indicate
-		 * which piece is active (being dragged).
-		 */
 		// assert that this is an HTML element
 		const element: HTMLElement = e.target as HTMLElement;
 		// retrieves a reference to the chessboard container DOM element
@@ -128,12 +128,12 @@ export default function Chessboard({ playMove, pieces }: Props) {
 		}
 	}
 
+	/**
+	 * Update the position of the currently dragged chess piece on the screen as
+	 * the user moves the mouse, ensuring the piece stays visually within the
+	 * boundaries of the chessboard.
+	 */
 	function movePiece(e: React.MouseEvent): void {
-		/**
-		 * Update the position of the currently dragged chess piece on the 
-		 * screen as the user moves the mouse, ensuring the piece stays
-		 * visually within the boundaries of the chessboard.
-		 */
 		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
 		// proceeds only if there is an active piece being dragged
 		if (activePiece && chessboard) {
@@ -170,12 +170,12 @@ export default function Chessboard({ playMove, pieces }: Props) {
 		}
 	}
 
+	/**
+	 * Finalize the move of a dragged chess piece by calculating its drop
+	 * position on the board, attempting to update the game state via
+	 * playMove(), and visually resetting the piece if the move is invalid.
+	 */
 	function dropPiece (e: React.MouseEvent): void {
-		/**
-		 * Finalize the move of a dragged chess piece by calculating its drop
-		 * position on the board, attempting to update the game state via
-		 * playMove, and visually resetting the piece if the move is invalid.
-		 */
 		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
 		if (activePiece && chessboard) {
 			const chessboardHeight = chessboard.clientHeight;

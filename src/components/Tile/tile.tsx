@@ -7,12 +7,12 @@ interface Props {
 	coords?:	string	// for debugging
 };
 
+/**
+ * A Tile component visually renders a single square of a chessboard, including
+ * its background color, whether it should be highlighted (to show possible
+ * moves), and optionally a chess piece image placed on top of it.
+ */
 export default function Tile({ number, image, highlight, coords }: Props) {
-	/**
-	 * A Tile component visually renders a single square of a chessboard,
-	 * including its background color, whether it should be highlighted (to show
-	 * possible moves), and optionally a chess piece image placed on top of it.
-	 */
 	coords = "";	// comment this line if you want to use this
 
 	const className: string = [

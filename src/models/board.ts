@@ -17,15 +17,24 @@ import { Piece } from "./piece";
 import { Position } from "./position";
 import { SimplifiedPiece } from "./simplifiedPiece";
 
+/**
+ * Board represents the current state of the game, encapsulating the positions
+ * of all pieces, the number of turns taken, and flags indicating whether the
+ * game has ended due to a win, stalemate, or draw. It maintains an array of
+ * pieces on the board, a history of moves played, and counters such as the
+ * number of turns without a pawn move or capture, which are important for
+ * certain chess rules like the 50-move rule. The class keeps track of
+ * previously encountered board states to identify repetition-based draws.
+ */
 export class Board {
-	pieces:			Piece[];
-	totalTurns:		number;
-	winningTeam?:	TeamType;
-	stalemate:		boolean;
+	pieces:			Piece[];	// array of all chess pieces on the board
+	totalTurns:		number;		// number of moves made so far
+	winningTeam?:	TeamType;	// which team has won
+	stalemate:		boolean;	// flags indicating game end states
 	draw:			boolean;
-	moves:			Move[];
-	boardHistory:	{ [key: string]: number };
-	turnsWithNoCaptureOrPawnMove: number;
+	moves:			Move[];		// history of moves played
+	boardHistory:	{ [key: string]: number };	// used for repetition detection
+	turnsWithNoCaptureOrPawnMove: number;		// counter for the 50-move rule
 
 	constructor(
 		pieces:			Piece[],
@@ -36,24 +45,34 @@ export class Board {
 	) {
 		this.pieces = pieces;
 		this.totalTurns = totalTurns;
-		this.stalemate = false;
-		this.draw = false;
+		this.stalemate = false;	// reset flag
+		this.draw = false;		// reset flag
 		this.moves = moves;
 		this.boardHistory = boardHistory;
 		this.turnsWithNoCaptureOrPawnMove = turnsWithNoCaptureOrPawnMove;
 	}
 
+	/**
+	 * Returns which team's turn it is. Even turn = opponent (black), odd =
+	 * our (white).
+	 */
 	get currentTeam(): TeamType {
 		return this.totalTurns % 2 === 0 ? TeamType.OPPONENT : TeamType.OUR;
 	}
 
+	/**
+	 * Calculates all legal moves for all pieces in current board state.
+	 * Includes special moves like castling and removes illegal moves that would
+	 * place a king in check. Also detects if current player has no moves 
+	 * (stalemate or checkmate). Checks draw conditions and updates flags
+	 * accordingly.
+	 */
 	calculateAllMoves() {
 		// calculate the moves of all the pieces
-		for (const piece of this.pieces) {
+		for (const piece of this.pieces)
 			piece.possibleMoves = this.getValidMoves(piece, this.pieces);
-		}
 
-		// calculate castling moves
+		// add castling moves for kings
 		for (const king of this.pieces.filter((p) => p.isKing)) {
 			// king.possibleMoves = getCastlingMoves(king, this.pieces);
 			
@@ -71,7 +90,7 @@ export class Board {
 		// current king is on check, etc.
 		this.checkCurrentTeamMoves();
 
-		// all the moves from the enemy team
+		// collect enemy moves and then clear their possibleMoves to optimize
 		const enemyMoves = this.pieces.filter(
 			(p) => p.team !== this.currentTeam).map(
 				(p) => p.possibleMoves).flat();
@@ -82,10 +101,12 @@ export class Board {
 		)
 			piece.possibleMoves = [];
 
+		// check for draws by 50-move rule, insufficient material, or repetition
 		this.checkForFiftyMoveRule();
 		this.checkForDraw();
 		this.checkForThreefoldRepetition();
 
+		// if current player has any legal moves, return early
 		if (this.pieces.filter(
 			(p) => p.team === this.currentTeam).some((p) =>
 				p.possibleMoves !== undefined && p.possibleMoves.length > 0)
@@ -94,6 +115,10 @@ export class Board {
 		this.checkForStalemate(enemyMoves);
 	}
 
+	/**
+	 * Removes moves that would put the current player's king in check. Does
+	 * this by simulating moves on a cloned board and verifying king safety.
+	 */
 	checkCurrentTeamMoves() {
 		// loop through all the current team's pieces
 		for (const piece of this.pieces.filter(
@@ -105,7 +130,7 @@ export class Board {
 			for (const move of piece.possibleMoves) {
 				const simulatedBoard = this.clone();
 
-				// remove the piece at the destined position
+				// remove any piece at the target move position (capture)
 				simulatedBoard.pieces = simulatedBoard.pieces.filter(
 					(p) => !p.samePosition(move)
 				);
@@ -131,6 +156,8 @@ export class Board {
 						enemy, simulatedBoard.pieces
 					);
 
+					// if enemy is a pawn, check if it can attack king's
+					// position diagonally
 					if (enemy.isPawn) {
 						if (enemy.possibleMoves.some((m) =>
 							(m.x !== enemy.position.x) &&
@@ -139,6 +166,8 @@ export class Board {
 							piece.possibleMoves = piece.possibleMoves?.filter(
 								(m) => !m.samePosition(move)
 							);
+					// for other enemy pieces, check if they can move to king's
+					// position
 					} else {
 						if (enemy.possibleMoves.some(
 							(m) => m.samePosition(clonedKing.position))
@@ -153,6 +182,10 @@ export class Board {
 		}
 	}
 
+	/**
+	 * Delegates to piece-specific move calculation functions based on piece
+	 * type. Does not check king safety here.
+	 */
 	getValidMoves(piece: Piece, boardState: Piece[]): Position[] {
 		switch(piece.type) {
 			case PieceType.PAWN:
@@ -172,6 +205,16 @@ export class Board {
 		}
 	}
 
+	/**
+	 * Executes a move on the board, updating piece positions and handling
+	 * special cases:
+	 *  - castling (king + rook) move
+	 *  - en passant capture
+	 *  - pawn double move sets en passant flags
+	 * 
+	 * Updates move counters and recalculates moves after the move. Returns
+	 * false if the move is invalid.
+	 */
 	playMove(
 		enPassantMove:		boolean,
 		validMove:			boolean,
@@ -188,31 +231,53 @@ export class Board {
 		const piecesBeforeMove: number = this.pieces?.length;
 
 		if (
-			playedPiece.isKing &&
-			destinationPiece?.isRook &&
-			(destinationPiece.team === playedPiece.team)
+			playedPiece.isKing &&		// the played piece is a king
+			destinationPiece?.isRook &&	// king is dragged into a rook
+			(destinationPiece.team === playedPiece.team)	// pieces same team
 		) {
+			// handle castling: move king two spaces towards rook and rook jumps
+			// to other side
+			// if the rook is to the right of the king, direction is 1
+			// if the rook is to the left, direction is -1
 			const direction = (destinationPiece.position.x -
 				playedPiece.position.x > 0) ? 1 : -1;
+			// the king moves two squares toward the rook
 			const newKingXPosition = playedPiece.position.x + direction * 2;
 
 			this.pieces = this.pieces.map((p) => {
 				// change the positions of the following pieces
+				// king's x position is updated to the new position above
 				if (p.samePiecePosition(playedPiece))
-					p.position.x = newKingXPosition;				// KING
+					p.position.x = newKingXPosition;
 				else if (p.samePiecePosition(destinationPiece))
-					p.position.x = newKingXPosition - direction;	// ROOK
+					// rook's x position is set to one square next to the king's
+					// new position, on the opposite side
+					p.position.x = newKingXPosition - direction;
 				return p;
 			});
 		} else if (enPassantMove) {
 			// https://en.wikipedia.org/wiki/En_passant
+			// handle en passant: capture pawn behind target square and move
+			// capturing pawn
+
+			// update the pieces on the board by creating a new array through
+			// reduce()
 			this.pieces = this.pieces.reduce((results, piece) => {
+				// for the piece being moved (the capturing pawn at
+				// originalPosition)
 				if (piece.samePosition(originalPosition)) {
-					piece.position.x = destination.x;
-					piece.position.y = destination.y;
+					// update the position to the destination square (the
+					// square being the opponent's pawn that just moved two
+					// squares)
+					piece.position = destination;
+					// indicate that this pawn has moved
 					piece.hasMoved = true;
+					// if the piece is a pawn, set enPassant flag to false
 					if (piece.isPawn) (piece as Pawn).enPassant = false;
 					results.push(piece);
+				// for all other pieces, it excludes the pawn that is captured
+				// en passant, the pawn located at the square directly behind
+				// the destination, effectively removing it from board
 				} else if (!(piece.samePosition(
 					new Position(destination.x, destination.y - pawnDirection)))
 				) {
@@ -224,33 +289,50 @@ export class Board {
 		// updates the piece position and if a piece is attacked,
 		// removes it
 		} else if (validMove) {
+			// handle normal valid move: update piece position, set en passant
+			// flags for pawn double moves
+
+			// create a new array of pieces
 			this.pieces = this.pieces.reduce((results, piece) => {
+				// for the piece currently at the originalPosition (the piece
+				// being moved):
 				if (piece.samePosition(originalPosition)) {
-					// if the attacked piece has made an en passant move
-					// in the previous turn
+					// if the piece is a pawn, it checks whether the move is a
+					// double-step pawn advance (moving exactly two tiles
+					// forward), if so, set the enPassant flag to true for that
+					// pawn, indicating it can be captured en passant on the
+					// next turn
 					if (piece.isPawn)
 						(piece as Pawn).enPassant = (
 							Math.abs(originalPosition.y - destination.y) === 2)
 							&& (piece.type === PieceType.PAWN);
-					piece.position.x = destination.x;
-					piece.position.y = destination.y;
+					piece.position = destination;
 					piece.hasMoved = true;
-					
+
 					results.push(piece);
+				// for all other pieces:
+				// pieces located on the destination square are excluded
+				// (captured pieces)
 				} else if (!piece.samePosition(destination)) {
+					// pawns that are not moving get their enPassant flag set
+					// to false, since en passant is only valid immediately
+					// after a double move
 					if (piece.isPawn) (piece as Pawn).enPassant = false;
 					results.push(piece);
 				}
 				return results;
 			}, [] as Piece[]);
 		} else
+			// invalid move
 			return false;
 
+		// increment counter; reset if pawn moved or capture occurred
 		this.turnsWithNoCaptureOrPawnMove++;
 		if (playedPiece.isPawn || this.pieces.length < piecesBeforeMove)
 			// reset 50 move rule
 			this.turnsWithNoCaptureOrPawnMove = 0;
 
+		// add move to history and recalculate all moves
 		this.moves.push(new Move(
 			playedPiece.team,
 			playedPiece.type,
@@ -262,78 +344,118 @@ export class Board {
 		return true;
 	}
 
+	/**
+	 * Checks if fifty consecutive moves passed with no pawn moves or captures;
+	 * if so, flags a draw.
+	 */
 	checkForFiftyMoveRule(): void {
 		if (this.turnsWithNoCaptureOrPawnMove >= 50) this.draw = true;
 	}
 
+	/**
+	 * Examines common insufficient material draw scenarios, e.g. only kings
+	 * left or kings with a minor piece. Sets draw flag if conditions met.
+	 * 
+	 * https://www.chess.com/terms/draw-chess
+	 */
 	checkForDraw(): void {
-		// check for draw scenarios
-		// https://www.chess.com/terms/draw-chess
-
-		// true if our team only has a king or has a king + knight/bishop
+		// determine if our team is eligible for draw because of insufficient
+		// material, this is true if:
 		const ourTeamEligibleForDraw = this.pieces.filter(
+			// the team has only one piece left (which means just the king) or
 			(p) => p.team === TeamType.OUR).length === 1 ||
+			// the team has exactly two pieces, and those pieces are either the
+			// king plus a minor piece (a knight or bishop)
 			this.pieces.filter(
 				(p) => p.team === TeamType.OUR &&
 				(p.isKing || p.isKnight || p.isBishop)).length === 2;
-		// true if opponent's team only has a king or has a king + knight/bishop
+		// checks if the opponent's team meets the same criteria
 		const opponentTeamEligibleForDraw = this.pieces.filter(
 			(p) => p.team === TeamType.OPPONENT).length === 1 ||
 			this.pieces.filter(
 				(p) => p.team === TeamType.OPPONENT &&
 				(p.isKing || p.isKnight || p.isBishop)).length === 2;
 		
-		if (ourTeamEligibleForDraw && opponentTeamEligibleForDraw) {
+		// if both teams meet these criteria (no side has significant mating(?)
+		// material), the game is declared a draw
+		if (ourTeamEligibleForDraw && opponentTeamEligibleForDraw)
 			this.draw = true;
-		} else if (
+		else if (
+			// if our side has exactly three pieces and
 			this.pieces.filter((p) => p.team === TeamType.OUR).length === 3 &&
+			// two of those pieces are knights and
 			this.pieces.filter(
 				(p) => p.team === TeamType.OUR && p.isKnight).length === 2  &&
+			// the opponent has just a king
 			this.pieces.filter((p) => p.team === TeamType.OPPONENT).length === 1
-		) {
-			// one lone king with 2 knights (our team)
+		)
+			// since two knights cannot force checkmate against a lone king with
+			// perfect defense, the function declares a draw in this case
 			this.draw = true;
-		} else if (
+		// does the same thing here but the roles are reversed
+		else if (
 			this.pieces.filter(
 				(p) => p.team === TeamType.OPPONENT).length === 3 &&
 			this.pieces.filter((p) =>
 				p.team === TeamType.OPPONENT && p.isKnight).length === 2 &&
 			this.pieces.filter((p) => p.team === TeamType.OUR).length === 1
-		) {
-			// one lone king with 2 knights (opponent's team)
+		)
 			this.draw = true;
-		}
 	}
 
+	/**
+	 * Tracks occurrences of the current board state for repetition detection.
+	 * Sets draw if the same simplified board configuration occurs three times.
+	 * 
+	 * https://en.wikipedia.org/wiki/Threefold_repetition
+	 */
 	checkForThreefoldRepetition(): void {
-		// https://en.wikipedia.org/wiki/Threefold_repetition
+		// create a simplified representation of the current board state by
+		// mapping each piece to a SimplifiedPiece (see definition for yourself)
 		const simplifiedPieces = this.pieces.map((p) => new SimplifiedPiece(p));
+		// this simplified representation is then serialized into a JSON string
+		// to create a unique key representing the position
 		const simplifiedPiecesStringified = JSON.stringify(simplifiedPieces);
 
+		// keep track of how many times each unique board state (key) has
+		// occurred in the game, stored in boardHistory
 		if (this.boardHistory[simplifiedPiecesStringified] === undefined)
 			this.boardHistory[simplifiedPiecesStringified] = 1;
 		else
 			this.boardHistory[simplifiedPiecesStringified] += 1;
 
+		// if the current board position appears for the third time (count
+		// reaches 3), set the draw flag to true
 		if (this.boardHistory[simplifiedPiecesStringified] === 3)
 			this.draw = true;
 	}
 
+	/**
+	 * Checks stalemate or checkmate conditions when current player has no legal
+	 * moves. If king is attacked by any enemy move, it's a checkmate.
+	 * Otherwise, it's a stalemate.
+	 */
 	checkForStalemate(enemyMoves: (Position | undefined)[]): void {
-		// if any of the opponent's team pieces can attack the king, then he is
-		// in check and the other team has won
-
-		// the king position of the current team
+		// find the king's position of the current team (the player who is
+		// about to move)
 		const kingPosition = this.pieces.find(
 			(p) => p.isKing && p.team === this.currentTeam)!.position;
 
+		// if any enemy move can capture or attack the king's square, this means
+		// the king is in check
 		if (enemyMoves.some((m) => m?.samePosition(kingPosition)))
 			this.winningTeam = (this.currentTeam === TeamType.OUR) ?
 				TeamType.OPPONENT : TeamType.OUR;
+		// if no enemy moves attack the king's position, but the current player
+		// still has no legal moves, the game is in a stalemate
 		else
 			this.stalemate = true;
 	}
 
+	/**
+	 * Creates a deep clone of the board state, useful for move simulations
+	 * without affecting the real game.
+	 */
 	clone(): Board {
 		return new Board(
 			this.pieces.map((p) => p.clone()),

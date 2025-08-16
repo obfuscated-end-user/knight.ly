@@ -24,15 +24,13 @@ export default function Referee() {
 	const modalRef = useRef<HTMLDivElement>(null);
 	const endgameModalRef = useRef<HTMLDivElement>(null);
 
+	/**
+	 * Responsible for attempting to make a move on the chessboard. It verifies
+	 * if the move is valid according to game rules, updates the game state if
+	 * the move is valid, handles special case like pawn promotion and en
+	 * passant. Returns true if a move is successful and false otherwise.
+	 */
 	function playMove(playedPiece: Piece, destination: Position): boolean {
-		/**
-		 * Responsible for attempting to make a move on the chessboard. It
-		 * verifiers if the move is valid according to game rules, updates the
-		 * game state if the move is valid, handles special case like pawn
-		 * promotion and en passant. Returns true if a move is successful and
-		 * false otherwise.
-		 */
-
 		// remember that everything is ignored below a return statement once it
 		// gets there successfully
 
@@ -117,20 +115,18 @@ export default function Referee() {
 		return playedMoveIsValid;
 	}
 
+	/**
+	 * En passant is a special pawn capture that can occur immediately after an
+	 * opponent's pawn moves two squares forward from its starting position and
+	 * lands beside your pawn. Your (or their) pawn can capture it as if it had
+	 * only moved one square forward, but only on the very next move.
+	 */
 	function isEnPassant (
 		initialPosition:	Position,
 		desiredPosition:	Position,
 		type:				PieceType,
 		team:				TeamType
 	): boolean {
-		/**
-		 * En passant is a special pawn capture that can occur immediately after
-		 * an opponent's pawn moves two squares forward from its starting 
-		 * position and lands beside your pawn. Your (or their) pawn can capture
-		 * it as if it had only moved one square forward, but only on the very
-		 * next move.
-		 */
-
 		// if the pawn is white, pawns move upwards with y increasing (+1)
 		// if the pawn is black, pawns move downwards with y decreasing (-1)
 		const pawnDirection: number = (team === TeamType.OUR) ? 1 : -1;
@@ -173,12 +169,12 @@ export default function Referee() {
 		return false;
 	}
 
+	/**
+	 * Handles pawn promotion. When a pawn reaches the farthest rank (last row)
+	 * on the opponent's side, it can be promoted to a higher-value piece like a
+	 * queen, rook, bishop, or knight.
+	 */
 	function promotePawn(pieceType: PieceType): void {
-		/**
-		 * Handles pawn promotion. When a pawn reaches the farthest rank (last
-		 * row) on the opponent's side, it can be promoted to a higher-value
-		 * piece like a queen, rook, bishop, or knight.
-		 */
 		// check first if there is a pawn currently marked f or promotioon
 		// if no pawn is waiting for promotion, return early and do nothing
 		if (promotionPawn === undefined) return;
@@ -228,31 +224,30 @@ export default function Referee() {
 		modalRef.current?.classList.add("hidden");
 	}
 
-	// used to show the correct team while promoting pawns
+	/**
+	 * Used to determine a string that represents the color of the pawn
+	 * currently promoted. This string is used to show the correct images in the
+	 * pawn promotion modal.
+	 */
 	function promotionTeamType(): string {
-		/**
-		 * Used to determine a string that represents the color of the pawn
-		 * currently promoted. This string is used to show the correct images in
-		 * the pawn promotion modal.
-		 */
 		return (promotionPawn?.team === TeamType.OUR) ? "l" : "d";
 	}
 
+	/**
+	 * Resets the game to its initial starting state and hides the endgame modal
+	 * that shows the game result.
+	 */
 	function restartGame(): void {
-		/**
-		 * Resets the game to its initial starting state and hides the endgame
-		 * modal that shows the game result.
-		 */
 		endgameModalRef.current?.classList.add("hidden");
 		setBoard(initialBoard.clone());
 	}
 
+	/**
+	 * Used to detect if the game has reached an end condition such as a draw,
+	 * stalemate, or a win, and then show an appropriate modal dialog to the
+	 * user.
+	 */
 	function checkForEndGame(board: Board): void {
-		/**
-		 * Used to detect if the game has reached an end condition such as a
-		 * draw, stalemate, or a win, and then show an appropriate modal dialog
-		 * to the user.
-		 */
 		if (board.draw) {
 			setModalMessage("Draw. Nobody won.");
 			endgameModalRef.current?.classList.remove("hidden");
