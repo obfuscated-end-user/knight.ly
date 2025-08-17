@@ -1,6 +1,4 @@
-import { TeamType } from "../../types";
 import {
-	isTileEmptyOrOccupiedByOpponent,
 	isTileOccupied,
 	isTileOccupiedByOpponent
 } from "./generalRules";
@@ -8,36 +6,6 @@ import {
 	Piece,
 	Position
 } from "../../models";
-
-export const queenMove = (
-	initialPosition:	Position,	// previous (x, y) location
-	desiredPosition:	Position,	// destined (x, y) location
-	team:				TeamType,	// whose side this piece is on
-	boardState:			Piece[]		// contains properties about board
-): boolean => {
-	for (let i = 1; i < 8; i++) {
-		// if (statement1) else if (statement2) else (statement3)
-		// -1: left, 1: right, 0: moving vertically (no change in x)
-		let multiplierX: number = (desiredPosition.x < initialPosition.x) ? -1 :
-			(desiredPosition.x > initialPosition.x) ? 1 : 0;
-		// -1: down, 1: up, 0: moving horizontally (no change in y)
-		let multiplierY: number = (desiredPosition.y < initialPosition.y) ? -1 :
-			(desiredPosition.y > initialPosition.y) ? 1 : 0;
-
-		let passedPosition = new Position(
-			initialPosition.x + (i * multiplierX),
-			initialPosition.y + (i * multiplierY)
-		);
-
-		if (passedPosition.samePosition(desiredPosition)) {
-			if (isTileEmptyOrOccupiedByOpponent(passedPosition,
-				boardState, team))
-				return true;
-		} else
-			if (isTileOccupied(passedPosition, boardState)) break;
-	}
-	return false;
-}
 
 export const getPossibleQueenMoves = (
 	queen:		Piece,
