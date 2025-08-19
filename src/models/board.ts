@@ -228,6 +228,9 @@ export class Board {
 		const destinationPiece = this.pieces.find(
 			(p) => p.samePosition(destination));
 
+		const isCapture = destinationPiece !== undefined &&
+			destinationPiece.team !== playedPiece.team;
+
 		const piecesBeforeMove: number = this.pieces?.length;
 
 		if (
@@ -337,7 +340,8 @@ export class Board {
 			playedPiece.team,
 			playedPiece.type,
 			playedPiece.position.clone(),
-			destination.clone()
+			destination.clone(),
+			isCapture
 		));
 		this.calculateAllMoves();
 
