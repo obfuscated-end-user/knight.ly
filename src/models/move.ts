@@ -54,16 +54,10 @@ export class Move {
 
 		if (this.piece === PieceType.KING) {
 			const diffX = this.toPosition.x - this.fromPosition.x;
-			if (diffX > 1)
-				return `${this.team === TeamType.OUR ? "White" : "Black"} 
-					castles kingside (O-O)`;
-			if (diffX < 1)
-				return `${this.team === TeamType.OUR ? "White" : "Black"} 
-					castles queenside (O-O-O)`;
+			return `${this.team === TeamType.OUR ? "White" : "Black"} 
+				castles ${diffX > 1 ? "kingside (0-0)" : "queenside (0-0-0)"}`;
 		}
 
-		// for pawns, when capturing, show the file of fromPosition
-		let captureNotation = "";
 		if (this.isCapture) {
 			if (this.piece === PieceType.PAWN)
 				return `${this.team === TeamType.OUR ? "White" : "Black"} 
