@@ -11,19 +11,22 @@ export class Move {
 	fromPosition:	Position;
 	toPosition:		Position;
 	isCapture:		boolean;
+	isEnPassant:	boolean;
 
 	constructor(
 		team:			TeamType,
 		piece:			PieceType,
 		fromPosition:	Position,
 		toPosition:		Position,
-		isCapture:		boolean = false
+		isCapture:		boolean = false,
+		isEnPassant:	boolean = false
 	) {
 		this.team = team;
 		this.piece = piece;
 		this.fromPosition = fromPosition;
 		this.toPosition = toPosition;
 		this.isCapture = isCapture;
+		this.isEnPassant = isEnPassant;
 	}
 
 	// modfiy this to use algebraic notation instead
@@ -51,26 +54,30 @@ export class Move {
 		const toFile = fileMap[this.toPosition.x];
 
 		const pieceLetter = pieceLetters[this.piece];
+		const pieceTeam = this.team === TeamType.OUR ? "White" : "Black";
 
 		if (this.piece === PieceType.KING) {
 			const diffX = this.toPosition.x - this.fromPosition.x;
-			return `${this.team === TeamType.OUR ? "White" : "Black"} 
-				castles ${diffX > 1 ? "kingside (0-0)" : "queenside (0-0-0)"}`;
+			return `${pieceTeam} castles ${diffX > 1 ?
+				"kingside (0-0)" : "queenside (0-0-0)"}`;
 		}
 
-		if (this.isCapture) {
-			if (this.piece === PieceType.PAWN)
-				return `${this.team === TeamType.OUR ? "White" : "Black"} 
-					moves ${pieceLetter}${fromFile}${fromRank} to 
-					${fromFile}x${toFile}${toRank}`;
-			else
-				return `${this.team === TeamType.OUR ? "White" : "Black"} 
-					moves ${pieceLetter}${fromFile}${fromRank} to 
-					${pieceLetter}x${toFile}${toRank}`;
-		} else
-			return `${this.team === TeamType.OUR ? "White" : "Black"} 
-					moves ${pieceLetter}${fromFile}${fromRank} 
-					to ${toFile}${toRank}`;
+		if (this.piece === PieceType.PAWN) {
+			let pawnCaptureString =
+				`${pieceTeam} moves ${pieceLetter}${fromFile}${fromRank} to 
+				${fromFile}x${toFile}${toRank}`;
+			if (this.isEnPassant)
+				return pawnCaptureString + " e.p.";
+			else if (this.isCapture)
+				return pawnCaptureString;
+		}
+
+		if (this.isCapture)
+			return `${pieceTeam} moves ${pieceLetter}${fromFile}${fromRank} to 
+				${pieceLetter}x${toFile}${toRank}`;
+		else
+			return `${pieceTeam} moves ${pieceLetter}${fromFile}${fromRank} 
+				to ${toFile}${toRank}`;
 	}
 
 	clone(): Move {
@@ -79,7 +86,8 @@ export class Move {
 			this.piece,
 			this.fromPosition.clone(),
 			this.toPosition.clone(),
-			this.isCapture
+			this.isCapture,
+			this.isEnPassant
 		);
 	}
 }

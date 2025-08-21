@@ -341,7 +341,8 @@ export class Board {
 			playedPiece.type,
 			playedPiece.position.clone(),
 			destination.clone(),
-			isCapture
+			isCapture,
+			enPassantMove
 		));
 		this.calculateAllMoves();
 

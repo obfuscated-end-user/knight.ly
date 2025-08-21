@@ -316,7 +316,7 @@ export default function Referee() {
 					pieces={board.pieces}
 				/>
 				<div className="information">
-					<p>Total turns: <b>{board.totalTurns}</b></p>
+					<p>Total moves: <b>{board.totalTurns}</b></p>
 					<p>
 						<b>{(board.currentTeam === TeamType.OPPONENT) ?
 						"Black" : "White"}</b> to move.
