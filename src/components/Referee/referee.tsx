@@ -85,6 +85,19 @@ export default function Referee() {
 				destination,
 				originalPosition
 			);
+			// after playing move, check if opposing team is in check
+			const opposingTeam = playedPiece.team === TeamType.OUR ?
+				TeamType.OPPONENT : TeamType.OUR;
+			const isCheck = clonedBoard.isCheck(opposingTeam);
+
+			// update last move with check info
+			if (playedMoveIsValid) {
+				const lastMove = clonedBoard.moves[
+					clonedBoard.moves.length - 1
+				];
+				if (lastMove) lastMove.isCheck = isCheck;
+			}
+
 			// check for endgame conditions (checkmate, stalemate, draw)
 			checkForEndGame(clonedBoard);
 			// the updated clonedBoard replaces the previous board state in the
@@ -318,8 +331,8 @@ export default function Referee() {
 				<div className="information">
 					<p>Total moves: <b>{board.totalTurns}</b></p>
 					<p>
-						<b>{(board.currentTeam === TeamType.OPPONENT) ?
-						"Black" : "White"}</b> to move.
+						<b>{(board.currentTeam === TeamType.OUR) ?
+						"White" : "Black"}</b> to move.
 					</p>
 					<div className="moves">
 						{/**

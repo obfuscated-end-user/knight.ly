@@ -73,9 +73,7 @@ export class Board {
 			piece.possibleMoves = this.getValidMoves(piece, this.pieces);
 
 		// add castling moves for kings
-		for (const king of this.pieces.filter((p) => p.isKing)) {
-			// king.possibleMoves = getCastlingMoves(king, this.pieces);
-			
+		for (const king of this.pieces.filter((p) => p.isKing))
 			// THIS DOESN'T WORK ↓↓↓
 			// if (king.possibleMoves === undefined) continue;
 
@@ -84,7 +82,6 @@ export class Board {
 				...king.possibleMoves!,
 				...getCastlingMoves(king, this.pieces)
 			];
-		}
 
 		// check if the current team moves are valid, this includes if the
 		// current king is on check, etc.
@@ -455,6 +452,25 @@ export class Board {
 		// still has no legal moves, the game is in a stalemate
 		else
 			this.stalemate = true;
+	}
+
+	/**
+	 * Returns true if the given team is currently in check.
+	 * @param team TeamType.
+	 */
+	isCheck(team: TeamType): boolean {
+		const king = this.pieces.find((p) => p.isKing && p.team === team);
+		if (!king || !king.position) return false;
+		// get all opponent pieces
+		const enemyPieces = this.pieces.filter((p) => p.team !== team);
+
+		// for each enemy piece, check if any of its possible moves attack the
+		// king's position
+		for (const enemy of enemyPieces) {
+			const moves = this.getValidMoves(enemy, this.pieces);
+			if (moves.some((m) => m.samePosition(king.position))) return true;
+		}
+		return false;
 	}
 
 	/**

@@ -274,14 +274,55 @@ export default function Chessboard({ playMove, pieces }: Props) {
 	// https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Using_Touch_Events
 	return (
 		<>
-			<div
-				onMouseDown={(e) => grabPiece(e)}
-				onMouseMove={(e) => movePiece(e)}
-				onMouseUp={(e) => dropPiece(e)}
-				id="chessboard"
-				ref={chessboardRef}
-			>
-				{board}
+			<div className="board-container">
+				<div className="file-labels">
+					{HORIZONTAL_AXIS.map((file) => (
+						<div
+							key={file}
+							className="file-label"
+							style={{transform: "scale(-1, -1)"}}
+						>
+							{file.toUpperCase()}
+						</div>
+					))}
+				</div>
+				<div className="board-with-ranks">
+					<div className="rank-labels">
+						{VERTICAL_AXIS.slice(0).reverse().map((rank) => (
+							<div key={rank} className="rank-label">{rank}</div>
+						))}
+					</div>
+					<div
+						onMouseDown={(e) => grabPiece(e)}
+						onMouseMove={(e) => movePiece(e)}
+						onMouseUp={(e) => dropPiece(e)}
+						id="chessboard"
+						ref={chessboardRef}
+					>
+						{board}
+					</div>
+					<div className="rank-labels">
+						{VERTICAL_AXIS.slice(0).reverse().map((rank) => (
+							<div
+								key={rank}
+								className="rank-label"
+								style={{writingMode: "sideways-rl"}}
+							>
+								{rank}
+							</div>
+						))}
+					</div>
+				</div>
+				<div className="file-labels">
+					{HORIZONTAL_AXIS.map((file) => (
+						<div
+							key={file}
+							className="file-label"
+						>
+							{file.toUpperCase()}
+						</div>
+					))}
+				</div>
 			</div>
 		</>
 	);

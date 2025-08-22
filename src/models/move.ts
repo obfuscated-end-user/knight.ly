@@ -1,4 +1,7 @@
-import { HORIZONTAL_AXIS, VERTICAL_AXIS } from "../constants";
+import {
+	HORIZONTAL_AXIS,
+	VERTICAL_AXIS
+} from "../constants";
 import {
 	PieceType,
 	TeamType
@@ -12,6 +15,7 @@ export class Move {
 	toPosition:		Position;
 	isCapture:		boolean;
 	isEnPassant:	boolean;
+	isCheck:		boolean;
 
 	constructor(
 		team:			TeamType,
@@ -19,7 +23,8 @@ export class Move {
 		fromPosition:	Position,
 		toPosition:		Position,
 		isCapture:		boolean = false,
-		isEnPassant:	boolean = false
+		isEnPassant:	boolean = false,
+		isCheck:		boolean = false
 	) {
 		this.team = team;
 		this.piece = piece;
@@ -27,9 +32,9 @@ export class Move {
 		this.toPosition = toPosition;
 		this.isCapture = isCapture;
 		this.isEnPassant = isEnPassant;
+		this.isCheck = isCheck;
 	}
 
-	// modfiy this to use algebraic notation instead
 	// https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
 	// i don't know why it's called that though, as this has nothing to do with
 	// algebra or math
@@ -58,11 +63,37 @@ export class Move {
 
 		if (this.piece === PieceType.KING) {
 			const diffX = this.toPosition.x - this.fromPosition.x;
-			return `${pieceTeam} castles ${diffX > 1 ?
-				"kingside (0-0)" : "queenside (0-0-0)"}`;
+			console.log(diffX);
+			if (diffX === 3)
+				return `${pieceTeam} castles kingside (0-0)`;
+			else if (diffX === -4)
+				return `${pieceTeam} castles queenside (0-0-0)`;
+		} else if (this.piece === PieceType.PAWN) {
+			let pawnCaptureString =
+				`${pieceTeam} moves ${pieceLetter}${fromFile}${fromRank} to 
+				${fromFile}x${toFile}${toRank}`;
+			if (this.isEnPassant) return pawnCaptureString + " e.p.";
+			else if (this.isCapture) return pawnCaptureString;
 		}
 
-		if (this.piece === PieceType.PAWN) {
+		let defaultMessage: string;
+		if (this.isCapture)
+			defaultMessage = `${pieceTeam} moves 
+				${pieceLetter}${fromFile}${fromRank} to 
+				${pieceLetter}x${toFile}${toRank}`;
+		else
+			defaultMessage = `${pieceTeam} moves 
+				${pieceLetter}${fromFile}${fromRank} to ${toFile}${toRank}`;
+
+		if (this.isCheck) defaultMessage += "+";
+
+		return defaultMessage;
+
+		/* if (this.piece === PieceType.KING) {
+			const diffX = this.toPosition.x - this.fromPosition.x;
+			return `${pieceTeam} castles ${diffX > 1 ?
+				"kingside (0-0)" : "queenside (0-0-0)"}`;
+		} else if (this.piece === PieceType.PAWN) {
 			let pawnCaptureString =
 				`${pieceTeam} moves ${pieceLetter}${fromFile}${fromRank} to 
 				${fromFile}x${toFile}${toRank}`;
@@ -77,7 +108,7 @@ export class Move {
 				${pieceLetter}x${toFile}${toRank}`;
 		else
 			return `${pieceTeam} moves ${pieceLetter}${fromFile}${fromRank} 
-				to ${toFile}${toRank}`;
+				to ${toFile}${toRank}`; */
 	}
 
 	clone(): Move {
