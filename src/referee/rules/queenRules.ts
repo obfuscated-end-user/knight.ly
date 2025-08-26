@@ -23,7 +23,7 @@ export const getPossibleQueenMoves = (
 	const possibleMoves: Position[] = [];
 
 	// directions for the queen: rook + bishop combined
-	const directions = [
+	const dirs = [
 		{ dx: 0, dy: 1 },	// up
 		{ dx: 0, dy: -1 },	// down
 		{ dx: -1, dy: 0 },	// left
@@ -35,7 +35,7 @@ export const getPossibleQueenMoves = (
 	];
 
 	// for each direction, keep moving until blocked or off board
-	for (const { dx, dy } of directions) {
+	for (const { dx, dy } of dirs) {
 		for (let i = 1; i < BOARD_SIZE; i++) {
 			// calculate target position
 			const x: number = queen.position.x + dx * i;
@@ -44,17 +44,15 @@ export const getPossibleQueenMoves = (
 			// bounds checking
 			if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) break;
 	
-			const destination = new Position(x, y);
+			const dest = new Position(x, y);
 	
 			// if tile is empty, queen can move here
-			if (!isTileOccupied(destination, boardState))
-				possibleMoves.push(destination);
+			if (!isTileOccupied(dest, boardState))
+				possibleMoves.push(dest);
 			// if tile occupied by opponent, queen can capture here but no
 			// further moves beyond
-			else if (
-				isTileOccupiedByOpponent(destination, boardState, queen.team)
-			) {
-				possibleMoves.push(destination);
+			else if (isTileOccupiedByOpponent(dest, boardState, queen.team)) {
+				possibleMoves.push(dest);
 				break;
 			// tile occupied by own piece, stop moving in this direction
 			} else break;

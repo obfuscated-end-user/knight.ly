@@ -22,7 +22,7 @@ export const getPossibleKingMoves = (
 	const possibleMoves: Position[] = [];
 
 	// directions for the king: one step in any of the 8 surrounding squares
-	const directions = [
+	const dirs = [
 		{ dx: 0, dy: 1 },	// up
 		{ dx: 0, dy: -1 },	// down
 		{ dx: -1, dy: 0 },	// left
@@ -34,7 +34,7 @@ export const getPossibleKingMoves = (
 	];
 
 	// check each adjacent square
-	for (const { dx, dy } of directions) {
+	for (const { dx, dy } of dirs) {
 		// calculate target position
 		const x: number = king.position.x + dx;
 		const y: number = king.position.y + dy;
@@ -42,14 +42,14 @@ export const getPossibleKingMoves = (
 		// bounds checking
 		if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) continue;
 
-		const destination = new Position(x, y);
+		const dest = new Position(x, y);
 
 		// if tile is empty, it's a valid move
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
+		if (!isTileOccupied(dest, boardState))
+			possibleMoves.push(dest);
 		// if tile is occupied by opponent king can capture the piece
-		else if (isTileOccupiedByOpponent(destination, boardState, king.team))
-			possibleMoves.push(destination);
+		else if (isTileOccupiedByOpponent(dest, boardState, king.team))
+			possibleMoves.push(dest);
 	}
 
 	return possibleMoves;
@@ -78,11 +78,11 @@ export const getCastlingMoves = (
 
 	for (const rook of rooks) {
 		// direction from king to rook: right (1) or left (-1)
-		const direction = rook.position.x > king.position.x ? 1 : -1;
+		const dir = rook.position.x > king.position.x ? 1 : -1;
 
 		// position immediately next to king in direction of rook
 		const adjacentPosition = king.position.clone();
-		adjacentPosition.x += direction;
+		adjacentPosition.x += dir;
 
 		// ensure rook's possible moves include adjacent position
 		// (meaning path is open)

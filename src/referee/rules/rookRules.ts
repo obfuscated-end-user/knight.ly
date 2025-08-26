@@ -7,79 +7,51 @@ import {
 	Position
 } from "../../models";
 
+const BOARD_SIZE: number = 8;
+
+/**
+ * Get all possible moves for the rook.
+ * Rook moves horizontally and vertically until blocked.
+ * @param rook The rook piece.
+ * @param boardState Current pieces on the board.
+ * @returns Array of valid Position objects the rook can move to.
+ */
 export const getPossibleRookMoves = (
 	rook:		Piece,
 	boardState:	Piece[]
 ): Position[] => {
 	const possibleMoves: Position[] = [];
 
-	// top movement
-	for (let i = 1; i < 8; i++) {
-		// if destination is outside of the board, don't look any further
-		if (rook.position.y + i > 7) break;
+	const dirs = [
+		{ dx: 0, dy: 1 },	// up
+		{ dx: 0, dy: -1 },	// down
+		{ dx: -1, dy: 0 },	// left
+		{ dx: 1, dy: 0 },	// right
+	];
 
-		const destination = new Position(
-			rook.position.x,
-			rook.position.y + i
-		);
+	// for each direction, move until blocked or off-board
+	for (const { dx, dy } of dirs) {
+		for (let i = 1; i < BOARD_SIZE; i++) {
+			const x: number = rook.position.x + dx * i;
+			const y: number = rook.position.y + dy * i;
 
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, rook.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
+			// bounds checking
+			if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) break;
+
+			const dest = new Position(x, y);
+
+			// if tile empty, rook can move here
+			if (!isTileOccupied(dest, boardState))
+				possibleMoves.push(dest);
+			// if tile occupied by opponent, rook can capture and stop
+			else if (isTileOccupiedByOpponent(dest, boardState, rook.team)) {
+				possibleMoves.push(dest);
+				// cannot jump over opponent
+				break;
+			// tile occupied by own piece, stop exploring in this direction
+			} else break;
+		}
 	}
 
-	// bottom movement
-	for (let i = 1; i < 8; i++) {
-		if (rook.position.y - i < 0) break;
-
-		const destination = new Position(
-			rook.position.x,
-			rook.position.y - i
-		);
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, rook.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
-
-	// left movement
-	for (let i = 1; i < 8; i++) {
-		if (rook.position.x - i < 0) break;
-
-		const destination = new Position(
-			rook.position.x - i,
-			rook.position.y
-		);
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, rook.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
-
-	// right movement
-	for (let i = 1; i < 8; i++) {
-		if (rook.position.x + i > 7) break;
-
-		const destination = new Position(
-			rook.position.x + i,
-			rook.position.y
-		);
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, rook.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
 	return possibleMoves;
 }

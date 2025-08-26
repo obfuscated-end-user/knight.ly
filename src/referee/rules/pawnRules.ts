@@ -9,74 +9,73 @@ import {
 } from "../../models";
 import { Pawn } from "../../models/pawn";
 
-// used for rendering the possible move circles on the screen
+/**
+ * Get all possible moves for a pawn.
+ * Handles normal moves, initial two-tile advance, captures, and en passant.
+ * @param pawn The pawn piece.
+ * @param boardState Current board pieces.
+ * @returns Array of valid Position objects for the pawn moves.
+ */
 export const getPossiblePawnMoves = (
 	pawn:		Piece,
 	boardState:	Piece[]
 ): Position[] =>  {
 	const possibleMoves: Position[] = [];
-	const specialRow: number = (pawn.team === TeamType.OUR) ? 1 : 6;
-	const pawnDirection: number = (pawn.team === TeamType.OUR) ? 1 : -1;
 
-	const normalMove = new Position(
-		pawn.position.x,
-		pawn.position.y + pawnDirection
-	);
+	// directon pawn moves in y-axis (up or down)
+	const dir: number = (pawn.team === TeamType.OUR) ? 1 : -1;
+	// starting row for initial double-step move
+	const startRow: number = (pawn.team === TeamType.OUR) ? 1 : 6;
 
-	const specialMove = new Position(
-		pawn.position.x,
-		pawn.position.y + pawnDirection * 2
-	);
+	// one step forward position
+	const forward = new Position(pawn.position.x, pawn.position.y + dir);
+	// two steps forward position (only allowed if first move and path clear)
+	const dblForward = new Position(pawn.position.x, pawn.position.y + 2 * dir);
 
-	const upperLeftAttack = new Position(
-		pawn.position.x - 1,
-		pawn.position.y + pawnDirection
-	);
+	// diagonal attack positions
+	const diagLeft = new Position(pawn.position.x - 1, pawn.position.y + dir);
+	const diagRight = new Position(pawn.position.x + 1, pawn.position.y + dir);
 
-	const upperRightAttack = new Position(
-		pawn.position.x + 1,
-		pawn.position.y + pawnDirection
-	);
-
-	const leftPosition = new Position(
-		pawn.position.x - 1,
-		pawn.position.y
-	);
-
-	const rightPosition = new Position(
-		pawn.position.x + 1,
-		pawn.position.y
-	);
-
-	// if tile in front of pawn is not occupied
-	if (!isTileOccupied(normalMove, boardState)) {
-		// then that is a possible move
-		possibleMoves.push(normalMove);
-		// but if pawn hasn't moved yet and the two files ahead is not occupied
+	// check one square forward move is valid (empty tile)
+	if (!isTileOccupied(forward, boardState)) {
+		possibleMoves.push(forward);
+		// if pawn is on starting row and two squares ahead is empty,
+		// allow two-step ninja move
 		if (
-			(pawn.position.y === specialRow) &&
-			!isTileOccupied(specialMove, boardState)
+			(pawn.position.y === startRow) &&
+			!isTileOccupied(dblForward, boardState)
 		)
-			// then that is also a possible move
-			possibleMoves.push(specialMove);
+			possibleMoves.push(dblForward);
 	}
 
-	if (isTileOccupiedByOpponent(upperLeftAttack, boardState, pawn.team))
-		possibleMoves.push(upperLeftAttack);
-	else if (!isTileOccupied(upperLeftAttack, boardState)) {
-		const leftPiece = boardState.find((p) =>
-			p.samePosition(leftPosition));
-		if ((leftPiece != null) && (leftPiece as Pawn).enPassant)
-			possibleMoves.push(upperLeftAttack);
+	// check captures an en passant attacks on diagonal left
+	if (isTileOccupiedByOpponent(diagLeft, boardState, pawn.team))
+		possibleMoves.push(diagLeft);
+	else {
+		// look left tile on current row for opponent pawn flagged en passant
+		const leftPiece: Piece | undefined = boardState.find((p) =>
+			p.samePosition(new Position(pawn.position.x - 1, pawn.position.y)));
+		if (
+			(leftPiece?.team !== pawn.team) &&
+			leftPiece instanceof Pawn &&
+			(leftPiece as Pawn).enPassant
+		)
+			possibleMoves.push(diagLeft);
 	}
 
-	if (isTileOccupiedByOpponent(upperRightAttack, boardState, pawn.team))
-		possibleMoves.push(upperRightAttack);
-	else if (!isTileOccupied(upperRightAttack, boardState)) {
-		const rightPiece = boardState.find((p) =>
-			p.samePosition(rightPosition));
-		if ((rightPiece != null) && (rightPiece as Pawn).enPassant)
-			possibleMoves.push(upperRightAttack);
+	// do the same thing but on diagonal right
+	if (isTileOccupiedByOpponent(diagRight, boardState, pawn.team))
+		possibleMoves.push(diagRight);
+	else {
+		const rightPiece: Piece | undefined = boardState.find((p) =>
+			p.samePosition(new Position(pawn.position.x + 1, pawn.position.y)));
+		if (
+			(rightPiece?.team !== pawn.team) &&
+			rightPiece instanceof Pawn &&
+			(rightPiece as Pawn).enPassant
+		)
+			possibleMoves.push(diagRight);
 	}
+
 	return possibleMoves;
 }

@@ -22,17 +22,17 @@ export const getPossibleBishopMoves	= (
 	const possibleMoves: Position[] = [];
 
 	// d means change in x/y per step in that direction
-	const directions = [
+	const dirs = [
 		{ dx: 1, dy: 1 },	// up-right
 		{ dx: 1, dy: -1 },	// down-right
 		{ dx: -1, dy: -1 },	// down-left
 		{ dx: -1, dy: 1 },	// up-left
 	];
 
-	for (const { dx, dy } of directions) {
+	for (const { dx, dy } of dirs) {
 		// for each step along the diagonal (max 7 steps away)
 		for (let i = 1; i < BOARD_SIZE; i++) {
-			// calculate the position by moving by moving i steps in a given direction
+			// calculate the position by moving i steps in a given direction
 			const x: number = bishop.position.x + dx * i;
 			const y: number = bishop.position.y + dy * i;
 
@@ -40,16 +40,14 @@ export const getPossibleBishopMoves	= (
 			if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) break;
 
 			// create Position object for candidate tile
-			const destination = new Position(x, y);
+			const dest = new Position(x, y);
 
 			// if the tile is empty, the bishop can move here
-			if (!isTileOccupied(destination, boardState))
-				possibleMoves.push(destination);
-			// if the tile contains an opponent's piece, the bishop can capture it
-			else if (
-				isTileOccupiedByOpponent(destination, boardState, bishop.team)
-			) {
-				possibleMoves.push(destination);
+			if (!isTileOccupied(dest, boardState))
+				possibleMoves.push(dest);
+			// if the tile contains an opponent's piece, bishop can capture it
+			else if (isTileOccupiedByOpponent(dest, boardState, bishop.team)) {
+				possibleMoves.push(dest);
 				// can't jump over opponent, stop in this direction
 				break;
 			// tile occupied by own piece, cannot move or jump over it,
