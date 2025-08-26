@@ -7,229 +7,113 @@ import {
 	Position
 } from "../../models";
 
+const BOARD_SIZE: number  = 8;
+
+/**
+ * Get all possible moves for the king (excluding castling).
+ * @param king The king piece.
+ * @param boardState Current pieces on the board.
+ * @returns Array of valid Position objects the king can move to.
+ */
 export const getPossibleKingMoves = (
 	king:		Piece,
 	boardState:	Piece[]
 ): Position[] => {
 	const possibleMoves: Position[] = [];
-	
-	// top
-	for (let i = 1; i < 2; i++) {
-		const destination = new Position(
-			king.position.x,
-			king.position.y + i
-		);
 
-		// if the move is outside of the board, don't add it
-		if (
-			(destination.x < 0) || (destination.x > 7) ||
-			(destination.y < 0) || (destination.y > 7)
-		)
-			break;
+	// directions for the king: one step in any of the 8 surrounding squares
+	const directions = [
+		{ dx: 0, dy: 1 },	// up
+		{ dx: 0, dy: -1 },	// down
+		{ dx: -1, dy: 0 },	// left
+		{ dx: 1, dy: 0 },	// right
+		{ dx: 1, dy: 1 },	// up-right
+		{ dx: 1, dy: -1 },	// down-right
+		{ dx: -1, dy: -1 },	// down-left
+		{ dx: -1, dy: 1 },	// up-left
+	];
 
+	// check each adjacent square
+	for (const { dx, dy } of directions) {
+		// calculate target position
+		const x: number = king.position.x + dx;
+		const y: number = king.position.y + dy;
+
+		// bounds checking
+		if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) continue;
+
+		const destination = new Position(x, y);
+
+		// if tile is empty, it's a valid move
 		if (!isTileOccupied(destination, boardState))
 			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
+		// if tile is occupied by opponent king can capture the piece
+		else if (isTileOccupiedByOpponent(destination, boardState, king.team))
 			possibleMoves.push(destination);
-			break;
-		} else break;
 	}
 
-	// bottom
-	for (let i = 1; i < 2; i++) {
-		const destination = new Position(
-			king.position.x,
-			king.position.y - i
-		);
-
-		if (
-			(destination.x < 0) || (destination.x > 7) ||
-			(destination.y < 0) || (destination.y > 7)
-		)
-			break;
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
-
-	// left
-	for (let i = 1; i < 2; i++) {
-		const destination = new Position(
-			king.position.x - i,
-			king.position.y
-		);
-
-		if (
-			(destination.x < 0) || (destination.x > 7) ||
-			(destination.y < 0) || (destination.y > 7)
-		)
-			break;
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
-
-	// right
-	for (let i = 1; i < 2; i++) {
-		const destination = new Position(
-			king.position.x + i,
-			king.position.y
-		);
-
-		if (
-			(destination.x < 0) || (destination.x > 7) ||
-			(destination.y < 0) || (destination.y > 7)
-		)
-			break;
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
-
-	// upper right
-	for (let i = 1; i < 2; i++) {
-		const destination = new Position(
-			king.position.x + i,
-			king.position.y + i
-		);
-
-		if (
-			(destination.x < 0) || (destination.x > 7) ||
-			(destination.y < 0) || (destination.y > 7)
-		)
-			break;
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
-
-	// bottom right
-	for (let i = 1; i < 2; i++) {
-		const destination = new Position(
-			king.position.x + i,
-			king.position.y - i
-		);
-
-		if (
-			(destination.x < 0) || (destination.x > 7) ||
-			(destination.y < 0) || (destination.y > 7)
-		)
-			break;
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
-
-	// bottom left
-	for (let i = 1; i < 2; i++) {
-		const destination = new Position(
-			king.position.x - i,
-			king.position.y - i
-		);
-
-		if (
-			(destination.x < 0) || (destination.x > 7) ||
-			(destination.y < 0) || (destination.y > 7)
-		)
-			break;
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
-
-	// top left
-	for (let i = 1; i < 2; i++) {
-		const destination = new Position(
-			king.position.x - i,
-			king.position.y + i
-		);
-
-		if (
-			(destination.x < 0) || (destination.x > 7) ||
-			(destination.y < 0) || (destination.y > 7)
-		)
-			break;
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(destination, boardState, king.team)) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
 	return possibleMoves;
 }
 
-// when using this method, the enemy moves have already been calculated
+/**
+ * Get possible castling moves for the king. Castling requires that the king and
+ * rook haven't moved, no pieces between them, and that the king doesn't castle
+ * through check.
+ * @param king The king piece.
+ * @param boardState Current pieces on the board.
+ * @returns Array of Position objects representing castling moves (rook positions).
+ */
 export const getCastlingMoves = (
 	king:		Piece,
 	boardState:	Piece[]
 ): Position[] => {
 	const possibleMoves: Position[] = [];
 
+	// castling not allowed if king has already moved
 	if (king.hasMoved) return possibleMoves;
 
-	// get the rooks from the king's team that haven't moved yet
+	// find rooks on the same team that have not moved
 	const rooks = boardState.filter(
-		(p) => p.isRook && p.team === king.team && !p.hasMoved
-	);
-	for (const rook of rooks) {
-		// determine if we need to go to the right or left side
-		// (from the rook's perspective)
-		const direction = (rook.position.x - king.position.x > 0) ? 1 : -1;
+		(p) => p.isRook && p.team === king.team && !p.hasMoved);
 
-		// direction is determined from the rook to the king
+	for (const rook of rooks) {
+		// direction from king to rook: right (1) or left (-1)
+		const direction = rook.position.x > king.position.x ? 1 : -1;
+
+		// position immediately next to king in direction of rook
 		const adjacentPosition = king.position.clone();
 		adjacentPosition.x += direction;
 
+		// ensure rook's possible moves include adjacent position
+		// (meaning path is open)
 		if (!rook.possibleMoves?.some((m) => m.samePosition(adjacentPosition)))
 			continue;
 
-		// we know that the rook can move to the adjacent side of the king
 		const concerningTiles = rook.possibleMoves.filter(
-			(m) => m.y === king.position.y
-		);
+			(m) => m.y === king.position.y);
 
-		// checking if any of the enemy pieces can attack the spaces between
-		// the rook and the king
+		// all enemy pieces for check evaluation
 		const enemyPieces = boardState.filter((p) => p.team !== king.team);
 		let valid = true;
 
+		// verify none of the enemy pieces attack any tile between king and rook
 		for (const enemy of enemyPieces) {
-			if (enemy.possibleMoves === undefined) continue;
+			if (!enemy.possibleMoves) continue;
+
 			for (const move of enemy.possibleMoves) {
-				if (concerningTiles.some((t) => t.samePosition(move)))
+				if (concerningTiles.some((t) => t.samePosition(move))) {
 					valid = false;
-				if (!valid) break;
+					// path under attack, castling not allowed
+					break;
+				}
 			}
 			if (!valid) break;
 		}
 		if (!valid) continue;
+
+		// all checks passed, add ROOK's position as a castling move
 		possibleMoves.push(rook.position.clone());
 	}
+
 	return possibleMoves;
 }

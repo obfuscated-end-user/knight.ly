@@ -7,78 +7,56 @@ import {
 	Position
 } from "../../models";
 
-export const getPossibleBishopMoves = (
-	bishop: 	Piece,
+const BOARD_SIZE: number = 8;
+
+/**
+ * Get all possible moves for the bishop.
+ * @param bishop The bishop piece.
+ * @param boardState Current pieces on the board.
+ * @returns Array of valid Position objects the bishop can move to.
+ */
+export const getPossibleBishopMoves	= (
+	bishop:		Piece,
 	boardState:	Piece[]
 ): Position[] => {
 	const possibleMoves: Position[] = [];
 
-	// upper right
-	for (let i = 1; i < 8; i++) {
-		const destination = new Position(
-			bishop.position.x + i,
-			bishop.position.y + i
-		);
+	// d means change in x/y per step in that direction
+	const directions = [
+		{ dx: 1, dy: 1 },	// up-right
+		{ dx: 1, dy: -1 },	// down-right
+		{ dx: -1, dy: -1 },	// down-left
+		{ dx: -1, dy: 1 },	// up-left
+	];
 
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(
-			destination, boardState, bishop.team)
-		) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
+	for (const { dx, dy } of directions) {
+		// for each step along the diagonal (max 7 steps away)
+		for (let i = 1; i < BOARD_SIZE; i++) {
+			// calculate the position by moving by moving i steps in a given direction
+			const x: number = bishop.position.x + dx * i;
+			const y: number = bishop.position.y + dy * i;
+
+			// bounds checking
+			if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) break;
+
+			// create Position object for candidate tile
+			const destination = new Position(x, y);
+
+			// if the tile is empty, the bishop can move here
+			if (!isTileOccupied(destination, boardState))
+				possibleMoves.push(destination);
+			// if the tile contains an opponent's piece, the bishop can capture it
+			else if (
+				isTileOccupiedByOpponent(destination, boardState, bishop.team)
+			) {
+				possibleMoves.push(destination);
+				// can't jump over opponent, stop in this direction
+				break;
+			// tile occupied by own piece, cannot move or jump over it,
+			// stop searching further in this direction
+			} else break;
+		}
 	}
 
-	// bottom right
-	for (let i = 1; i < 8; i++) {
-		const destination = new Position(
-			bishop.position.x + i,
-			bishop.position.y - i
-		);
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(
-			destination, boardState, bishop.team)
-		) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
-
-	// bottom left
-	for (let i = 1; i < 8; i++) {
-		const destination = new Position(
-			bishop.position.x - i,
-			bishop.position.y - i
-		);
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(
-			destination, boardState, bishop.team)
-		) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
-
-	// top left
-	for (let i = 1; i < 8; i++) {
-		const destination = new Position(
-			bishop.position.x - i,
-			bishop.position.y + i
-		);
-
-		if (!isTileOccupied(destination, boardState))
-			possibleMoves.push(destination);
-		else if (isTileOccupiedByOpponent(
-			destination, boardState, bishop.team)
-		) {
-			possibleMoves.push(destination);
-			break;
-		} else break;
-	}
 	return possibleMoves;
 }

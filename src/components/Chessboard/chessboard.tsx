@@ -7,7 +7,7 @@ import "./chessboard.css";
 import {
 	VERTICAL_AXIS,
 	HORIZONTAL_AXIS,
-	GRID_SIZE,
+	GRID_SIZE
 } from "../../constants";
 import {
 	Piece,

@@ -63,7 +63,6 @@ export class Move {
 
 		if (this.piece === PieceType.KING) {
 			const diffX = this.toPosition.x - this.fromPosition.x;
-			console.log(diffX);
 			if (diffX === 3)
 				return `${pieceTeam} castles kingside (0-0)`;
 			else if (diffX === -4)
@@ -88,27 +87,6 @@ export class Move {
 		if (this.isCheck) defaultMessage += "+";
 
 		return defaultMessage;
-
-		/* if (this.piece === PieceType.KING) {
-			const diffX = this.toPosition.x - this.fromPosition.x;
-			return `${pieceTeam} castles ${diffX > 1 ?
-				"kingside (0-0)" : "queenside (0-0-0)"}`;
-		} else if (this.piece === PieceType.PAWN) {
-			let pawnCaptureString =
-				`${pieceTeam} moves ${pieceLetter}${fromFile}${fromRank} to 
-				${fromFile}x${toFile}${toRank}`;
-			if (this.isEnPassant)
-				return pawnCaptureString + " e.p.";
-			else if (this.isCapture)
-				return pawnCaptureString;
-		}
-
-		if (this.isCapture)
-			return `${pieceTeam} moves ${pieceLetter}${fromFile}${fromRank} to 
-				${pieceLetter}x${toFile}${toRank}`;
-		else
-			return `${pieceTeam} moves ${pieceLetter}${fromFile}${fromRank} 
-				to ${toFile}${toRank}`; */
 	}
 
 	clone(): Move {
