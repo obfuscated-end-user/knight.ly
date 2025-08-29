@@ -96,7 +96,6 @@
 	font-size: 20px;
 	color: #eedc97;
 	height: 30px;
-	/* border: 1px solid white; */
 }
 
 .board-with-ranks {
@@ -118,7 +117,14 @@
 	font-family: monospace;
 	font-size: 20px;
 	color: #eedc97;
-	/* line-height: 100px; */
 	user-select: none;
-	/* border: 1px solid white; */
+}
+
+.king-in-check > div {
+	filter:
+		drop-shadow(0 0 6px rgba(255, 0, 0, 0.8))
+		drop-shadow(0 0 10px rgba(255, 0, 0, 0.6))
+		drop-shadow(0 0 15px rgba(255, 0, 0, 0.4));
+	position: relative;
+	z-index: 5;
 }

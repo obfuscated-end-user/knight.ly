@@ -96,7 +96,8 @@ export class Move {
 			this.fromPosition.clone(),
 			this.toPosition.clone(),
 			this.isCapture,
-			this.isEnPassant
+			this.isEnPassant,
+			this.isCheck
 		);
 	}
 }

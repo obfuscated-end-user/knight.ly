@@ -10,8 +10,8 @@ import {
 import { Pawn } from "../../models/pawn";
 
 /**
- * Get all possible moves for a pawn.
- * Handles normal moves, initial two-tile advance, captures, and en passant.
+ * Get all possible moves for a pawn. Handles normal moves, initial two-tile
+ * advance, captures, and en passant.
  * @param pawn The pawn piece.
  * @param boardState Current board pieces.
  * @returns Array of valid Position objects for the pawn moves.

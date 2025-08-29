@@ -275,6 +275,8 @@ export default function Referee() {
 		}
 	}
 
+	const kingInCheckPosition = board.pieces.find((p) => p.isKing && board.isCheck(p.team))?.position;
+
 	return (
 		<>
 		{/**
@@ -327,6 +329,7 @@ export default function Referee() {
 				<Chessboard
 					playMove={playMove}
 					pieces={board.pieces}
+					kingInCheckPosition={kingInCheckPosition}
 				/>
 				<div className="information">
 					<p>Total moves: <b>{board.totalTurns}</b></p>
@@ -341,7 +344,7 @@ export default function Referee() {
 						 * display move descriptions.
 						 */}
 						{board.moves.map(
-							(m, i) => <p key={i}>{m.toMessage()}</p>
+							(m, i) => <p key={i}>{i + 1}. {m.toMessage()}</p>
 						)}
 					</div>
 				</div>

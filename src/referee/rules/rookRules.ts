@@ -10,8 +10,8 @@ import {
 const BOARD_SIZE: number = 8;
 
 /**
- * Get all possible moves for the rook.
- * Rook moves horizontally and vertically until blocked.
+ * Get all possible moves for the rook. Rook moves horizontally and vertically
+ * until blocked.
  * @param rook The rook piece.
  * @param boardState Current pieces on the board.
  * @returns Array of valid Position objects the rook can move to.

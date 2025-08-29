@@ -22,9 +22,10 @@ import {
 interface Props {
 	playMove:	(piece: Piece, position: Position) => boolean;
 	pieces:		Piece[];
+	kingInCheckPosition?:	Position;
 }
 
-export default function Chessboard({ playMove, pieces }: Props) {
+export default function Chessboard({ playMove, pieces, kingInCheckPosition }: Props) {
 	/**
 	 * To be fair, I have no idea what these things did until now. So I did a
 	 * bit of research and safe to say, I'm a better man.
@@ -205,11 +206,34 @@ export default function Chessboard({ playMove, pieces }: Props) {
 					new Position(x, y));
 				// if the move is invalid
 				if (!success) {
-					// visually snap the piece back to its original place before
-					// dragging
-					activePiece.style.position = "relative";
-					activePiece.style.removeProperty("top");
-					activePiece.style.removeProperty("left");
+					// animate piece back to original position smoothly
+					activePiece.style.transition =
+						"left 0.3s ease, top 0.3s ease";
+
+					// calculate the original coordinates inside the chessboard
+					// for grabPosition
+					const origX = chessboard.offsetLeft +
+						grabPosition.x * GRID_SIZE;
+					// adjust for flipped y-axis
+					const origY = chessboard.offsetTop +
+						(7 - grabPosition.y) * GRID_SIZE;
+					activePiece.style.left = `${origX}px`;
+					activePiece.style.top = `${origY}px`;
+
+					// after transition ends, reset styles
+					const transitionEndHandler = () => {
+						// smoothly animate the piece back to its original place
+						// after dragging or something, idk
+						activePiece.style.position = "relative";
+						activePiece.style.removeProperty("top");
+						activePiece.style.removeProperty("left");
+						activePiece.style.removeProperty("transition");
+						activePiece.removeEventListener(
+							"transitionend", transitionEndHandler);
+					};
+
+					activePiece.addEventListener("transitionend",
+						transitionEndHandler);
 				}
 			}
 			// change the activePiece state, indicating that no piece is
@@ -257,6 +281,10 @@ export default function Chessboard({ playMove, pieces }: Props) {
 				currentPiece.possibleMoves.some((p) =>
 					p.samePosition(new Position(i, j))) : false;
 
+			// used for the glowing king in check thing
+			const isInCheck = piece?.isKing && activePiece == null &&
+				kingInCheckPosition?.samePosition(piece.position) === true;
+
 			// creates a Tile and adds it to the board array
 			board.push(
 				<Tile
@@ -264,6 +292,7 @@ export default function Chessboard({ playMove, pieces }: Props) {
 					image={image}
 					number={number}
 					highlight={highlight}
+					isInCheck={isInCheck}
 					coords={`(${i}, ${j})`}
 				/>
 			);

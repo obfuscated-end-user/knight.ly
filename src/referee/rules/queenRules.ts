@@ -10,8 +10,8 @@ import {
 const BOARD_SIZE: number = 8;
 
 /**
- * Get all possible moves for the queen.
- * Combines rook-like (straight) and bishop-like (diagonal) moves.
+ * Get all possible moves for the queen. Combines rook-like (straight) and
+ * bishop-like (diagonal) moves.
  * @param queen The queen piece.
  * @param boardState Current pieces on the board.
  * @returns Array of valid Position objects the queen can move to.

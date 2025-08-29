@@ -4,6 +4,7 @@ interface Props {
 	image?:		string,
 	number:		number,
 	highlight:	boolean,
+	isInCheck?:	boolean,
 	coords?:	string	// for debugging
 };
 
@@ -12,7 +13,7 @@ interface Props {
  * its background color, whether it should be highlighted (to show possible
  * moves), and optionally a chess piece image placed on top of it.
  */
-export default function Tile({ number, image, highlight, coords }: Props) {
+export default function Tile({ number, image, highlight, isInCheck, coords }: Props) {
 	coords = "";	// comment this line if you want to use this
 
 	const className: string = [
@@ -25,7 +26,9 @@ export default function Tile({ number, image, highlight, coords }: Props) {
 		// if highlight is true, include "tile-highlight"
 		highlight && "tile-highlight",
 		// if image is not an empty string, include "chess-piece-tile"
-		image && "chess-piece-tile"
+		image && "chess-piece-tile",
+		// if this is in check (should only appear on tiles with king pieces)
+		isInCheck && "king-in-check",
 	// .filter() removes any entries in the array thatr evaluated to false
 	// .join(" ") converts the array of valid class names into a string like:
 	// "tile black-tile tile-highlight"
