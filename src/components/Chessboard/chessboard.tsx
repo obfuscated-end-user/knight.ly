@@ -311,7 +311,7 @@ export default function Chessboard({ playMove, pieces, kingInCheckPosition }: Pr
 							className="file-label"
 							style={{transform: "scale(-1, -1)"}}
 						>
-							{file.toUpperCase()}
+							{file}
 						</div>
 					))}
 				</div>
@@ -348,7 +348,7 @@ export default function Chessboard({ playMove, pieces, kingInCheckPosition }: Pr
 							key={file}
 							className="file-label"
 						>
-							{file.toUpperCase()}
+							{file}
 						</div>
 					))}
 				</div>

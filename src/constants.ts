@@ -11,7 +11,7 @@ import {
 
 // use this for rendering the rank and file thing later
 export const VERTICAL_AXIS = "12345678".split("");		// rank
-export const HORIZONTAL_AXIS = "abcdefgh".split("");	// file
+export const HORIZONTAL_AXIS = "ABCDEFGH".split("");	// file
 export const GRID_SIZE = 100;
 
 // this is dumb
