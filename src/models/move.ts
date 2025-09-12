@@ -8,6 +8,11 @@ import {
 } from "../types";
 import { Position } from "./position";
 
+/**
+ * Represents a single move in a chess game, capturing all relevant details such
+ * as which team made the move, the piece type, starting and ending positions,
+ * and special conditions like captures, en passant, and checks.
+ */
 export class Move {
 	team:			TeamType;
 	piece:			PieceType;
@@ -35,10 +40,17 @@ export class Move {
 		this.isCheck = isCheck;
 	}
 
-	// https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
-	// i don't know why it's called that though, as this has nothing to do with
-	// algebra or math
+	/**
+	 * Converts the move to a human-readable string using standard chess algebraic
+	 * notation. The notation describes the piece type, source and destination
+	 * squares, captures, castling, en passant, and checks.
+	 * @returns A string representing the move in algebraic notation format.
+	 */
 	toMessage(): string {
+		// https://en.wikipedia.org/wiki/Algebraic_notation_(chess)
+		// i don't know why it's called that though, as this has nothing to do
+		// with algebra or math
+
 		// you can change these to use unicode chess symbols instead
 		const pieceLetters: { [key in PieceType]?: string } = {
 			[PieceType.PAWN]:	"",		//  yes, this is blank
@@ -89,6 +101,11 @@ export class Move {
 		return defaultMessage;
 	}
 
+	/**
+	 * Creates a deep clone of the move instance, duplicating its properties.
+	 * @returns A new Move instance with the same team, piece, positions, and
+	 * flags.
+	 */
 	clone(): Move {
 		return new Move(
 			this.team,

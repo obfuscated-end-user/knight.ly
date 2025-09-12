@@ -55,6 +55,7 @@ export class Board {
 	/**
 	 * Returns which team's turn it is. Even turn = opponent (black), odd =
 	 * our (white).
+	 * @returns The current team's turn as a TeamType enum (OPPONENT or OUR).
 	 */
 	get currentTeam(): TeamType {
 		return this.totalTurns % 2 === 0 ? TeamType.OPPONENT : TeamType.OUR;
@@ -66,6 +67,7 @@ export class Board {
 	 * place a king in check. Also detects if current player has no moves 
 	 * (stalemate or checkmate). Checks draw conditions and updates flags
 	 * accordingly.
+	 * @returns void
 	 */
 	calculateAllMoves() {
 		// calculate the moves of all the pieces
@@ -115,6 +117,7 @@ export class Board {
 	/**
 	 * Removes moves that would put the current player's king in check. Does
 	 * this by simulating moves on a cloned board and verifying king safety.
+	 * @returns void
 	 */
 	checkCurrentTeamMoves() {
 		// loop through all the current team's pieces
@@ -182,6 +185,9 @@ export class Board {
 	/**
 	 * Delegates to piece-specific move calculation functions based on piece
 	 * type. Does not check king safety here.
+	 * @param piece The piece for which valid moves need to be calculated.
+	 * @param boardState The current state of all pieces on the board.
+	 * @returns An array of Positions representing valid moves for the given piece.
 	 */
 	getValidMoves(piece: Piece, boardState: Piece[]): Position[] {
 		switch(piece.type) {
@@ -211,6 +217,14 @@ export class Board {
 	 * 
 	 * Updates move counters and recalculates moves after the move. Returns
 	 * false if the move is invalid.
+	 * @param enPassantMove Boolean indicating whether the move is an en passant
+	 * capture.
+	 * @param validMove Boolean indicating whether the move is valid.
+	 * @param playedPiece The piece being moved.
+	 * @param destination The target position to move to.
+	 * @param originalPosition The original position of the piece before the
+	 * move.
+	 * @returns True if the move was successfully executed, false otherwise.
 	 */
 	playMove(
 		enPassantMove:		boolean,
@@ -349,6 +363,7 @@ export class Board {
 	/**
 	 * Checks if fifty consecutive moves passed with no pawn moves or captures;
 	 * if so, flags a draw.
+	 * @returns void
 	 */
 	checkForFiftyMoveRule(): void {
 		if (this.turnsWithNoCaptureOrPawnMove >= 50) this.draw = true;
@@ -359,6 +374,7 @@ export class Board {
 	 * left or kings with a minor piece. Sets draw flag if conditions met.
 	 * 
 	 * https://www.chess.com/terms/draw-chess
+	 * @returns void
 	 */
 	checkForDraw(): void {
 		// determine if our team is eligible for draw because of insufficient
@@ -410,6 +426,7 @@ export class Board {
 	 * Sets draw if the same simplified board configuration occurs three times.
 	 * 
 	 * https://en.wikipedia.org/wiki/Threefold_repetition
+	 * @returns void
 	 */
 	checkForThreefoldRepetition(): void {
 		// create a simplified representation of the current board state by
@@ -436,6 +453,8 @@ export class Board {
 	 * Checks stalemate or checkmate conditions when current player has no legal
 	 * moves. If king is attacked by any enemy move, it's a checkmate.
 	 * Otherwise, it's a stalemate.
+	 * @param enemyMoves An array of possible positions that enemy pieces can move to.
+	 * @returns void
 	 */
 	checkForStalemate(enemyMoves: (Position | undefined)[]): void {
 		// find the king's position of the current team (the player who is
@@ -456,7 +475,9 @@ export class Board {
 
 	/**
 	 * Returns true if the given team is currently in check.
-	 * @param team TeamType.
+	 * @param team The team to check for being in check.
+	 * @returns True if the specified team's king is under attack, false
+	 * otherwise.
 	 */
 	isCheck(team: TeamType): boolean {
 		const king = this.pieces.find((p) => p.isKing && p.team === team);
@@ -476,6 +497,7 @@ export class Board {
 	/**
 	 * Creates a deep clone of the board state, useful for move simulations
 	 * without affecting the real game.
+	 * @returns A new Board instance with cloned pieces, moves, and the same game state.
 	 */
 	clone(): Board {
 		return new Board(

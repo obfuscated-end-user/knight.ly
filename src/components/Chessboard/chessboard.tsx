@@ -83,6 +83,8 @@ export default function Chessboard({ playMove, pieces, kingInCheckPosition }: Pr
 	 * for dragging by moving it out of the normal flow, positioning with under
 	 * the mouse cursor, and updating component state to indicate which piece is
 	 * active (being dragged).
+	 * @param e The mouse event triggered by the user clicking on the board.
+	 * @returns void
 	 */
 	function grabPiece(e: React.MouseEvent): void {
 		// assert that this is an HTML element
@@ -133,6 +135,8 @@ export default function Chessboard({ playMove, pieces, kingInCheckPosition }: Pr
 	 * Update the position of the currently dragged chess piece on the screen as
 	 * the user moves the mouse, ensuring the piece stays visually within the
 	 * boundaries of the chessboard.
+	 * @param e The mouse event triggered by the user's mouse movement.
+	 * @returns void
 	 */
 	function movePiece(e: React.MouseEvent): void {
 		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
@@ -175,8 +179,10 @@ export default function Chessboard({ playMove, pieces, kingInCheckPosition }: Pr
 	 * Finalize the move of a dragged chess piece by calculating its drop
 	 * position on the board, attempting to update the game state via
 	 * playMove(), and visually resetting the piece if the move is invalid.
+	 * @param e The mouse event triggered when the user releases the mouse button.
+	 * @returns void
 	 */
-	function dropPiece (e: React.MouseEvent): void {
+	function dropPiece(e: React.MouseEvent): void {
 		const chessboard: (HTMLDivElement | null) = chessboardRef.current;
 		if (activePiece && chessboard) {
 			const chessboardHeight = chessboard.clientHeight;

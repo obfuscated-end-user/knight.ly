@@ -91,21 +91,7 @@ for (let p = 0; p < 2; p++) {
 			false
 		)
 	);
-
-	// for debugging stalemate, comment this out
-	/* initialBoardState.push(new Piece(new Position(7, 7), PieceType.KING, TeamType.OPPONENT, false));
-	initialBoardState.push(new Piece(new Position(0, 0), PieceType.KING, TeamType.OUR, false));
-	initialBoardState.push(new Piece( new Position(6, 4), PieceType.QUEEN, TeamType.OUR, false));
-	initialBoardState.push(new Piece(new Position(6, 3), PieceType.QUEEN, TeamType.OUR, false)); */
 }
-
-// for debugging draw, comment this out
-/* initialBoardState.push(new Piece(new Position(4, 7), PieceType.KING, TeamType.OPPONENT, false));
-initialBoardState.push(new Piece(new Position(3, 7), PieceType.BISHOP, TeamType.OPPONENT, false));
-initialBoardState.push(new Piece(new Position(4, 0), PieceType.KING, TeamType.OUR, false));
-initialBoardState.push(new Piece(new Position(3, 0), PieceType.BISHOP, TeamType.OUR, false));
-initialBoardState.push(new Piece(new Position(4, 1), PieceType.KNIGHT, TeamType.OPPONENT, false));
-initialBoardState.push(new Piece(new Position(5, 1), PieceType.KNIGHT, TeamType.OUR, false)); */
 
 // PAWNS
 for (let i = 0; i < 8; i++) {

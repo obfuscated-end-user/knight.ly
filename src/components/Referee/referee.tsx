@@ -29,6 +29,11 @@ export default function Referee() {
 	 * if the move is valid according to game rules, updates the game state if
 	 * the move is valid, handles special case like pawn promotion and en
 	 * passant. Returns true if a move is successful and false otherwise.
+	 * @param playedPiece The chess piece that is being moved.
+	 * @param destination The target position on the board where the piece is
+	 * to be moved.
+	 * @returns A boolean indicating whether the move was successfully played
+	 * (true) or rejected (false).
 	 */
 	function playMove(playedPiece: Piece, destination: Position): boolean {
 		// remember that everything is ignored below a return statement once it
@@ -133,6 +138,15 @@ export default function Referee() {
 	 * opponent's pawn moves two squares forward from its starting position and
 	 * lands beside your pawn. Your (or their) pawn can capture it as if it had
 	 * only moved one square forward, but only on the very next move.
+	 * @param initialPosition The starting position of the pawn attempting the
+	 * en passant.
+	 * @param desiredPosition The position the pawn wants to dmove to (the
+	 * capture square).
+	 * @param type The type of the piece attempting the move (should be a pawn).
+	 * @param team The team/color of the piece attempting to move (to determine
+	 * direction).
+	 * @returns True if the move qualifies as a valid en passant capture, false
+	 * otherwise.
 	 */
 	function isEnPassant (
 		initialPosition:	Position,
@@ -186,6 +200,8 @@ export default function Referee() {
 	 * Handles pawn promotion. When a pawn reaches the farthest rank (last row)
 	 * on the opponent's side, it can be promoted to a higher-value piece like a
 	 * queen, rook, bishop, or knight.
+	 * @param pieceType The type of piece to which the pawn will be promoted.
+	 * @returns void
 	 */
 	function promotePawn(pieceType: PieceType): void {
 		// check first if there is a pawn currently marked f or promotioon
@@ -241,6 +257,8 @@ export default function Referee() {
 	 * Used to determine a string that represents the color of the pawn
 	 * currently promoted. This string is used to show the correct images in the
 	 * pawn promotion modal.
+	 * @returns A string ("l" or "d") representing the team color of the
+	 * promoted pawn, used to select the appropriate piece image.
 	 */
 	function promotionTeamType(): string {
 		return (promotionPawn?.team === TeamType.OUR) ? "l" : "d";
@@ -249,6 +267,7 @@ export default function Referee() {
 	/**
 	 * Resets the game to its initial starting state and hides the endgame modal
 	 * that shows the game result.
+	 * @returns void
 	 */
 	function restartGame(): void {
 		endgameModalRef.current?.classList.add("hidden");
@@ -259,6 +278,8 @@ export default function Referee() {
 	 * Used to detect if the game has reached an end condition such as a draw,
 	 * stalemate, or a win, and then show an appropriate modal dialog to the
 	 * user.
+	 * @param board The current board state used to check for endgame conditions.
+	 * @returns void
 	 */
 	function checkForEndGame(board: Board): void {
 		if (board.draw) {
@@ -275,7 +296,8 @@ export default function Referee() {
 		}
 	}
 
-	const kingInCheckPosition = board.pieces.find((p) => p.isKing && board.isCheck(p.team))?.position;
+	const kingInCheckPosition = board.pieces.find(
+		(p) => p.isKing && board.isCheck(p.team))?.position;
 
 	return (
 		<>
